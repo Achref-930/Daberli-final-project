@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Ad = require('../models/Ad');
 const { protect, admin } = require('../middleware/auth');
-const { uploadAdImages, cloudinary } = require('../middleware/upload');
+const { uploadAdImages } = require('../middleware/upload');
+const { destroyManyByUrls } = require('../utils/cloudinaryHelper');
 
 // @route   GET /api/ads
 // @desc    Get all approved ads (+ user's own pending/rejected)
@@ -124,11 +125,16 @@ router.put('/:id', protect, uploadAdImages.array('images', 10), async (req, res)
     if (location) ad.location = location;
     if (details) ad.details = JSON.parse(details);
 
-    // Handle new images
+    // Handle new images — remove old ones from Cloudinary, then replace
     if (req.files && req.files.length > 0) {
+      // Delete all previous images from Cloudinary
+      if (ad.images && ad.images.length > 0) {
+        await destroyManyByUrls(ad.images);
+      }
+
       const newUrls = req.files.map((f) => f.path);
-      ad.images = [...ad.images, ...newUrls];
-      if (!ad.image) ad.image = newUrls[0];
+      ad.images = newUrls;
+      ad.image = newUrls[0];
     }
 
     await ad.save();
@@ -156,17 +162,9 @@ router.delete('/:id', protect, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to delete this ad' });
     }
 
-    // Clean up Cloudinary images
-    for (const imageUrl of ad.images) {
-      try {
-        // Extract public_id from Cloudinary URL
-        const parts = imageUrl.split('/');
-        const folder = parts[parts.length - 2];
-        const filename = parts[parts.length - 1].split('.')[0];
-        await cloudinary.uploader.destroy(`${folder}/${filename}`);
-      } catch (e) {
-        // Continue even if deletion fails
-      }
+    // Clean up all Cloudinary images
+    if (ad.images && ad.images.length > 0) {
+      await destroyManyByUrls(ad.images);
     }
 
     await Ad.findByIdAndDelete(req.params.id);

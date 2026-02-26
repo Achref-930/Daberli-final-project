@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const { protect, generateToken } = require('../middleware/auth');
-const { uploadAvatar, cloudinary } = require('../middleware/upload');
+const { uploadAvatar } = require('../middleware/upload');
+const { destroyByUrl } = require('../utils/cloudinaryHelper');
 
 const ADMIN_EMAILS = ['admin@daberli.dz'];
 
@@ -146,6 +147,11 @@ router.post('/avatar', protect, uploadAvatar.single('avatar'), async (req, res) 
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    // Delete old avatar from Cloudinary (skip default ui-avatars URLs)
+    if (req.user.avatar && req.user.avatar.includes('cloudinary')) {
+      await destroyByUrl(req.user.avatar);
     }
 
     const user = await User.findByIdAndUpdate(
