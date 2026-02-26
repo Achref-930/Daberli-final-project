@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { handleImgError } from '../../constants';
 import { Ad } from '../../types';
 import { Bath, BedDouble, Camera, MapPin, Square } from 'lucide-react';
 
@@ -18,6 +19,7 @@ const RealEstateCard: React.FC<RealEstateCardProps> = ({ ad }) => {
           alt={ad.title} 
           loading="lazy"
           decoding="async"
+          onError={handleImgError}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
         />
         <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent p-4">

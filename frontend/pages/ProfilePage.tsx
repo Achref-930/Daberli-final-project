@@ -16,6 +16,7 @@ import {
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { handleImgError } from '../constants';
 import { authAPI } from '../services/api';
 import { Ad, User } from '../types';
 
@@ -214,6 +215,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                 src={user.avatar}
                 alt={user.name}
                 className="w-24 h-24 rounded-full object-cover ring-4 ring-blue-50"
+                onError={handleImgError}
               />
               {/* Online indicator */}
               <span className="absolute bottom-1 right-1 w-4 h-4 bg-emerald-400 border-2 border-white rounded-full" />
@@ -374,6 +376,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                     src={review.reviewerAvatar}
                     alt={review.reviewerName}
                     className="w-10 h-10 rounded-full shrink-0 object-cover"
+                    onError={handleImgError}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 flex-wrap">

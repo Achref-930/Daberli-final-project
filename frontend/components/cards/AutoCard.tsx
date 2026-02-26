@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { handleImgError } from '../../constants';
 import { Ad } from '../../types';
 import { Camera, Car, Fuel, Gauge, MapPin } from 'lucide-react';
 
@@ -18,6 +19,7 @@ const AutoCard: React.FC<AutoCardProps> = ({ ad }) => {
           alt={ad.title} 
           loading="lazy"
           decoding="async"
+          onError={handleImgError}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
         />
         <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-slate-900 border border-white/20 shadow-sm">

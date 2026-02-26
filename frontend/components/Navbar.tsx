@@ -1,7 +1,7 @@
 import { ArrowLeft, ChevronDown, List, LogOut, MapPin, Menu, MessageSquare, PlusCircle, Search, Settings, ShieldCheck, User as UserIcon, X } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { WILAYAS } from '../constants';
+import { WILAYAS, handleImgError } from '../constants';
 import { useSearchSuggestions } from '../hooks/useSearchSuggestions';
 import { Ad, Category, User } from '../types';
 import SearchSuggestions from './SearchSuggestions';
@@ -356,7 +356,7 @@ const Navbar: React.FC<NavbarProps> = ({
                   className={`flex items-center space-x-3 focus:outline-none ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-50'} p-1.5 pr-3 rounded-full transition-colors border ${isDark ? 'border-white/10' : 'border-transparent'}`}
                 >
                   {user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full border-2 border-white shadow-sm" />
+                    <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full border-2 border-white shadow-sm" onError={handleImgError} />
                   ) : (
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${isDark ? 'bg-white text-slate-900' : 'bg-blue-100 text-blue-600'}`}>
                       {user.name.charAt(0)}
@@ -377,7 +377,7 @@ const Navbar: React.FC<NavbarProps> = ({
                     </div>
                     <div className="px-5 py-3 border-b border-gray-50 bg-gray-50/30 flex items-center gap-3">
                       {user.avatar ? (
-                        <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-white shadow-sm shrink-0" />
+                        <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full border-2 border-white shadow-sm shrink-0" onError={handleImgError} />
                       ) : (
                         <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
                           {user.name.charAt(0)}
@@ -433,7 +433,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 className={`p-1 rounded-full border ${isDark ? 'border-white/10' : 'border-gray-200'}`}
               >
                 {user.avatar
-                  ? <img src={user.avatar} alt={user.name} className="w-7 h-7 rounded-full" />
+                  ? <img src={user.avatar} alt={user.name} className="w-7 h-7 rounded-full" onError={handleImgError} />
                   : <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${isDark ? 'bg-white text-slate-900' : 'bg-blue-100 text-blue-600'}`}>{user.name.charAt(0)}</div>
                 }
               </button>

@@ -1,5 +1,16 @@
 import { Ad, Wilaya } from './types';
 
+// Placeholder shown when an image URL is broken / deleted from Cloudinary
+export const PLACEHOLDER_IMAGE = 'https://placehold.co/400x300/e2e8f0/94a3b8?text=No+Image';
+
+// Helper: attach to <img onError> to swap in placeholder on broken URLs
+export const handleImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+  const target = e.currentTarget;
+  if (target.src !== PLACEHOLDER_IMAGE) {
+    target.src = PLACEHOLDER_IMAGE;
+  }
+};
+
 export const WILAYAS: Wilaya[] = [
   { code: '01', name: 'Adrar' },
   { code: '02', name: 'Chlef' },

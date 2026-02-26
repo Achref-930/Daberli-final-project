@@ -1,6 +1,7 @@
 import { CheckCircle2, Clock3, ShieldAlert, XCircle } from 'lucide-react';
 import React from 'react';
 import Navbar from '../components/Navbar';
+import { handleImgError } from '../constants';
 import { Ad, User } from '../types';
 
 interface AdminPageProps {
@@ -84,7 +85,7 @@ const AdminPage: React.FC<AdminPageProps> = ({
             {pendingAds.map((ad) => (
               <div key={ad.id} className="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm">
                 <div className="h-44 bg-gray-100">
-                  <img src={ad.image} alt={ad.title} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                  <img src={ad.image} alt={ad.title} className="w-full h-full object-cover" loading="lazy" decoding="async" onError={handleImgError} />
                 </div>
                 <div className="p-4">
                   <p className="text-xs uppercase tracking-wide text-gray-500">{ad.category}</p>

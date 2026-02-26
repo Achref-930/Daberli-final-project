@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, BadgeCheck, Star, Heart, Zap } from 'lucide-react';
+import { handleImgError } from '../constants';
 import { Ad } from '../types';
 
 interface ServiceCardProps {
@@ -19,6 +20,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ ad }) => {
         <img 
           src={ad.image} 
           alt={ad.title} 
+          onError={handleImgError}
           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">

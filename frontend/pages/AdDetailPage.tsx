@@ -31,6 +31,7 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { handleImgError } from '../constants';
 import { Ad, User } from '../types';
 
 // ---------------------------------------------------------------------------
@@ -193,7 +194,7 @@ const RelatedCard: React.FC<{ ad: Ad }> = ({ ad }) => (
     to={`/ad/${ad.id}`}
     className="group flex gap-3 bg-white rounded-xl border border-gray-100 p-3 hover:shadow-md transition-all"
   >
-    <img src={ad.image} alt={ad.title} className="w-20 h-16 object-cover rounded-lg shrink-0" />
+    <img src={ad.image} alt={ad.title} className="w-20 h-16 object-cover rounded-lg shrink-0" onError={handleImgError} />
     <div className="min-w-0">
       <p className="text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">{ad.title}</p>
       <p className="text-xs text-gray-500 mt-1 flex items-center gap-1"><MapPin className="w-3 h-3" />{ad.location}</p>
@@ -420,6 +421,7 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
                 <img
                   src={gallery[activeIdx] || ad.image}
                   alt={ad.title}
+                  onError={handleImgError}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
 

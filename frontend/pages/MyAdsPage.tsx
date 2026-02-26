@@ -1,6 +1,7 @@
 import { MessageSquare, Send, ShieldAlert } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import Navbar from '../components/Navbar';
+import { handleImgError } from '../constants';
 import { Ad, AdMessage, User } from '../types';
 
 interface MyAdsPageProps {
@@ -110,7 +111,7 @@ const MyAdsPage: React.FC<MyAdsPageProps> = ({
                 <div key={ad.id} className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
                   <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr]">
                     <div className="h-56 lg:h-full bg-gray-100">
-                      <img src={ad.image} alt={ad.title} className="w-full h-full object-cover" />
+                      <img src={ad.image} alt={ad.title} className="w-full h-full object-cover" onError={handleImgError} />
                     </div>
 
                     <div className="p-5">
