@@ -92,6 +92,12 @@ const AppContent: React.FC = () => {
 
   const handleUpdateUser = async (updates: Partial<User>) => {
     try {
+      // If only avatar is being updated, it was already saved by the upload endpoint
+      // Just update local state
+      if (updates.avatar && Object.keys(updates).length === 1) {
+        setUser((prev) => prev ? { ...prev, ...updates } : prev);
+        return;
+      }
       const data = await authAPI.updateProfile(updates);
       setUser(data.user);
     } catch (error) {
