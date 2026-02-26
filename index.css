@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --color-daberli-blue: #1E3A8A;
+  --color-daberli-green: #10B981;
+  --color-daberli-light: #F3F4F6;
+  
+  --spacing-safe-pb: env(safe-area-inset-bottom);
+}
+
+.safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+.hero-dot-pattern {
+  background-image: radial-gradient(#ffffff 1px, transparent 1px);
+  background-size: 24px 24px;
+}
