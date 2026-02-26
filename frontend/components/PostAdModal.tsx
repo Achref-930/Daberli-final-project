@@ -38,7 +38,7 @@ import { Category } from '../types';
 interface PostAdModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (adData: any) => void;
+  onSubmit: (adData: any, imageFiles?: File[]) => void;
 }
 
 type Step = 1 | 2 | 3 | 4;
@@ -517,7 +517,9 @@ const StepPhoto: React.FC<{
   base: BaseForm;
   onDescChange: (v: string) => void;
   onImagesChange: (updater: (prev: string[]) => string[]) => void;
-}> = ({ base, onDescChange, onImagesChange }) => {
+  onFileAdd?: (file: File) => void;
+  onFileRemove?: (index: number) => void;
+}> = ({ base, onDescChange, onImagesChange, onFileAdd, onFileRemove }) => {
   const fileRef     = useRef<HTMLInputElement>(null);
   const touchStartX = useRef<number | null>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
@@ -660,6 +662,7 @@ const StepPhoto: React.FC<{
       try {
         const compressed = await compressImage(file);
         onImagesChange(prev => [...prev, compressed]);
+        onFileAdd?.(file);
       } catch {
         setFileError(`Failed to process "${file.name}".`);
       } finally {
@@ -681,6 +684,7 @@ const StepPhoto: React.FC<{
 
   const handleRemove = (idx: number) => {
     onImagesChange(prev => prev.filter((_, i) => i !== idx));
+    onFileRemove?.(idx);
     closeLightbox();
   };
 
@@ -1116,6 +1120,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
   const [stepError, setStepError] = useState<StepError>(null);
 
   const [base, setBase] = useState<BaseForm>(INIT_BASE);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [autoD, setAutoD] = useState<AutoDetails>(INIT_AUTO);
   const [reD, setReD] = useState<RealEstateDetails>(INIT_RE);
   const [jobD, setJobD] = useState<JobDetails>(INIT_JOB);
@@ -1161,7 +1166,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
   }, [isOpen]);
 
   const reset = useCallback(() => {
-    setBase(INIT_BASE); setAutoD(INIT_AUTO); setReD(INIT_RE); setJobD(INIT_JOB); setSvcD(INIT_SVC);
+    setBase(INIT_BASE); setImageFiles([]); setAutoD(INIT_AUTO); setReD(INIT_RE); setJobD(INIT_JOB); setSvcD(INIT_SVC);
     setStep(1); setIsLoading(false); setIsSuccess(false); setStepError(null);
   }, []);
 
@@ -1202,22 +1207,21 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
       if (error) { setStep(s as Step); setStepError(error); return; }
     }
     setIsLoading(true);
+
+    onSubmit({
+      title: base.title,
+      category: base.category,
+      price: Number(base.price) || 0,
+      currency: base.priceUnit,
+      location: base.location,
+      details: buildDetails(),
+    }, imageFiles);
+
+    localStorage.removeItem(DRAFT_KEY);
     setTimeout(() => {
-      onSubmit({
-        title: base.title,
-        category: base.category,
-        price: Number(base.price) || 0,
-        currency: base.priceUnit,
-        location: base.location,
-        image: base.images[0],   // cover
-        images: [...base.images],  // full gallery
-        details: buildDetails(),
-        datePosted: 'Just now',
-      });
-      localStorage.removeItem(DRAFT_KEY);
       setIsLoading(false);
       setIsSuccess(true);
-    }, 1400);
+    }, 800);
   };
 
   if (!isOpen) return null;
@@ -1332,6 +1336,8 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
                       base={base}
                       onDescChange={v => setBase(prev => ({ ...prev, description: v }))}
                       onImagesChange={handleImagesChange}
+                      onFileAdd={(file) => setImageFiles(prev => [...prev, file])}
+                      onFileRemove={(idx) => setImageFiles(prev => prev.filter((_, i) => i !== idx))}
                     />
                   )}
 

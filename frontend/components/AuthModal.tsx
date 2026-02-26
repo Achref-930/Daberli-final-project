@@ -4,16 +4,17 @@ import { X, Mail, Lock, Loader2, ArrowRight, User } from 'lucide-react';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSignIn: (email: string) => void;
+  onSignIn: (email: string, password: string, name?: string, mode?: 'login' | 'register') => Promise<void>;
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSignIn }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [email, setEmail] = useState('user@daberli.dz');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [socialToast, setSocialToast] = useState('');
+  const [error, setError] = useState('');
 
   // Escape key to close
   useEffect(() => {
@@ -29,16 +30,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSignIn }) => {
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     
-    // Simulate API call delay
-    setTimeout(() => {
-      setIsLoading(false);
-      onSignIn(email);
+    try {
+      await onSignIn(email, password, name || undefined, mode);
       onClose();
-    }, 1500);
+    } catch (err: any) {
+      setError(err.message || 'Authentication failed');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -76,6 +80,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSignIn }) => {
             {socialToast && (
                 <div className="mb-4 px-4 py-2.5 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 text-sm text-center">
                   {socialToast}
+                </div>
+              )}
+
+              {error && (
+                <div className="mb-4 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm text-center">
+                  {error}
                 </div>
               )}
 

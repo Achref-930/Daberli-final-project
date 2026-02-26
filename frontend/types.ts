@@ -11,6 +11,7 @@ export interface User {
 
 export interface Ad {
   id: string;
+  _id?: string;
   title: string;
   category: Category;
   price: number;
@@ -22,7 +23,7 @@ export interface Ad {
   isBoosted?: boolean; // Admin-selected promoted ads
   rating?: number; // For Pros
   approvalStatus?: ApprovalStatus;
-  postedByUserId?: string;
+  postedByUserId?: string | { _id: string; name: string; email: string; avatar?: string };
   datePosted: string;
   details?: {
     [key: string]: string | number; // Dynamic details based on category (e.g., Mileage, Sq meters)

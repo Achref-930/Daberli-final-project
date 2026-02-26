@@ -59,7 +59,8 @@ const MyAdsPage: React.FC<MyAdsPageProps> = ({
     );
   }
 
-  const myAds = ads.filter((ad) => ad.postedByUserId === user.id);
+  const getOwnerId = (ad: any) => typeof ad.postedByUserId === 'object' && ad.postedByUserId ? ad.postedByUserId._id : ad.postedByUserId;
+  const myAds = ads.filter((ad) => getOwnerId(ad) === user.id);
 
   const handleReplySubmit = (adId: string) => {
     const draft = (replyDrafts[adId] ?? '').trim();

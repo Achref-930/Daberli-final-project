@@ -52,7 +52,8 @@ const MessagesPage: React.FC<MessagesPageProps> = ({
     );
   }
 
-  const myAds = useMemo(() => ads.filter((ad) => ad.postedByUserId === user.id), [ads, user.id]);
+  const getOwnerId = (ad: any) => typeof ad.postedByUserId === 'object' && ad.postedByUserId ? ad.postedByUserId._id : ad.postedByUserId;
+  const myAds = useMemo(() => ads.filter((ad) => getOwnerId(ad) === user.id), [ads, user.id]);
 
   const threads = useMemo(() => {
     return myAds

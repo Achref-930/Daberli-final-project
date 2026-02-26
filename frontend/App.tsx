@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import AuthModal from './components/AuthModal';
 import PostAdModal from './components/PostAdModal';
-import { MOCK_ADS } from './constants';
+import { authAPI, adsAPI, messagesAPI } from './services/api';
 import AdminPage from './pages/AdminPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdDetailPage from './pages/AdDetailPage';
@@ -16,8 +16,6 @@ import ProfilePage from './pages/ProfilePage';
 import RealEstatePage from './pages/RealEstatePage';
 import ServicesPage from './pages/ServicesPage';
 import { Ad, AdMessage, Category, User } from './types';
-
-const ADMIN_EMAILS = ['admin@daberli.dz'];
 
 // New component to handle scrolling
 const ScrollToTop = () => {
@@ -36,12 +34,7 @@ const AppContent: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<Category | 'all'>('all');
   
   // Data State
-  const [ads, setAds] = useState<Ad[]>(
-    MOCK_ADS.map((ad) => ({
-      ...ad,
-      approvalStatus: ad.approvalStatus ?? 'approved'
-    }))
-  );
+  const [ads, setAds] = useState<Ad[]>([]);
   const [adMessages, setAdMessages] = useState<Record<string, AdMessage[]>>({});
 
   // Auth State
@@ -49,36 +42,61 @@ const AppContent: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isPostAdModalOpen, setIsPostAdModalOpen] = useState(false);
 
+  // ─── Load user from token on mount ──────────────────────────────────────
+  useEffect(() => {
+    if (authAPI.isLoggedIn()) {
+      authAPI.getMe()
+        .then((data) => setUser(data.user))
+        .catch(() => {
+          authAPI.logout();
+        });
+    }
+  }, []);
+
+  // ─── Fetch ads from backend ─────────────────────────────────────────────
+  const fetchAds = async () => {
+    try {
+      const data = await adsAPI.getAll({ userId: user?.id });
+      setAds(data);
+    } catch (error) {
+      console.error('Failed to fetch ads:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAds();
+  }, [user]);
+
   // Auth Handlers
   const openAuthModal = () => setIsAuthModalOpen(true);
   const closeAuthModal = () => setIsAuthModalOpen(false);
 
-  const handleSignIn = (email: string) => {
-    const namePart = email.split('@')[0];
-    const displayName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
-    const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
-
-    setUser({
-      id: `u_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
-      name: displayName,
-      email: email,
-      avatar: `https://ui-avatars.com/api/?name=${displayName}&background=0D8ABC&color=fff&rounded=true&bold=true`,
-      isAdmin
-    });
+  const handleSignIn = async (email: string, password: string, name?: string, mode?: 'login' | 'register') => {
+    try {
+      let data;
+      if (mode === 'register' && name) {
+        data = await authAPI.register(name, email, password);
+      } else {
+        data = await authAPI.login(email, password);
+      }
+      setUser(data.user);
+    } catch (error: any) {
+      throw error; // Let the AuthModal handle the error display
+    }
   };
 
-  const handleSignOut = () => setUser(null);
+  const handleSignOut = () => {
+    authAPI.logout();
+    setUser(null);
+  };
 
-  const handleUpdateUser = (updates: Partial<User>) => {
-    setUser((prev) => {
-      if (!prev) return prev;
-      const updated = { ...prev, ...updates };
-      // Regenerate avatar URL when name changes
-      if (updates.name && updates.name !== prev.name) {
-        updated.avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(updates.name)}&background=0D8ABC&color=fff&rounded=true&bold=true`;
-      }
-      return updated;
-    });
+  const handleUpdateUser = async (updates: Partial<User>) => {
+    try {
+      const data = await authAPI.updateProfile(updates);
+      setUser(data.user);
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+    }
   };
 
   // Post Ad Logic
@@ -90,73 +108,73 @@ const AppContent: React.FC = () => {
     }
   };
 
-  const handlePostAdSubmit = (adData: any) => {
+  const handlePostAdSubmit = async (adData: any, imageFiles?: File[]) => {
     if (!user) return;
 
-    const newAd: Ad = {
-      id: Math.random().toString(36).substr(2, 9),
-      ...adData,
-      isVerified: false,
-      approvalStatus: 'approved',
-      postedByUserId: user.id,
-      datePosted: 'Just now',
-    };
-    setAds((prevAds) => [newAd, ...prevAds]);
-
-    setAdMessages((prev) => ({
-      ...prev,
-      [newAd.id]: [
-        {
-          id: `${newAd.id}-m1`,
-          adId: newAd.id,
-          senderName: 'Buyer',
-          senderRole: 'buyer',
-          text: 'Hello, is this still available?',
-          timestamp: 'Just now'
-        }
-      ]
-    }));
+    try {
+      const newAd = await adsAPI.create(adData, imageFiles);
+      setAds((prevAds) => [newAd, ...prevAds]);
+    } catch (error) {
+      console.error('Failed to post ad:', error);
+    }
   };
 
-  const handleSendReply = (adId: string, text: string) => {
+  const handleSendReply = async (adId: string, text: string) => {
     if (!user) return;
 
-    const reply: AdMessage = {
-      id: `${adId}-${Date.now()}`,
-      adId,
-      senderName: user.name,
-      senderRole: 'owner',
-      text,
-      timestamp: 'Just now'
-    };
+    try {
+      const message = await messagesAPI.send(adId, text, 'owner');
 
-    setAdMessages((prev) => ({
-      ...prev,
-      [adId]: [...(prev[adId] ?? []), reply]
-    }));
+      const adaptedMessage: AdMessage = {
+        id: message._id,
+        adId: message.adId,
+        senderName: message.senderName,
+        senderRole: message.senderRole,
+        text: message.text,
+        timestamp: 'Just now',
+      };
+
+      setAdMessages((prev) => ({
+        ...prev,
+        [adId]: [...(prev[adId] ?? []), adaptedMessage],
+      }));
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
   };
 
-  const handleApproveAd = (adId: string) => {
-    setAds((prevAds) =>
-      prevAds.map((ad) =>
-        ad.id === adId ? { ...ad, approvalStatus: 'approved' } : ad
-      )
-    );
+  const handleApproveAd = async (adId: string) => {
+    try {
+      await adsAPI.approve(adId);
+      setAds((prevAds) =>
+        prevAds.map((ad) =>
+          ad.id === adId || ad._id === adId ? { ...ad, approvalStatus: 'approved' } : ad
+        )
+      );
+    } catch (error) {
+      console.error('Failed to approve ad:', error);
+    }
   };
 
-  const handleRejectAd = (adId: string) => {
-    setAds((prevAds) =>
-      prevAds.map((ad) =>
-        ad.id === adId ? { ...ad, approvalStatus: 'rejected' } : ad
-      )
-    );
+  const handleRejectAd = async (adId: string) => {
+    try {
+      await adsAPI.reject(adId);
+      setAds((prevAds) =>
+        prevAds.map((ad) =>
+          ad.id === adId || ad._id === adId ? { ...ad, approvalStatus: 'rejected' } : ad
+        )
+      );
+    } catch (error) {
+      console.error('Failed to reject ad:', error);
+    }
   };
 
   const visibleAds = ads.filter((ad) => {
     if (ad.approvalStatus === 'approved') return true;
     if (!user) return false;
 
-    return ad.postedByUserId === user.id;
+    const adOwner = (ad as any).postedByUserId?._id || (ad as any).postedByUserId;
+    return adOwner === user.id;
   });
 
   const handleSearch = (query: string, category: Category | 'all') => {

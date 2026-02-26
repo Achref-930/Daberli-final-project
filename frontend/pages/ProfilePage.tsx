@@ -1,4 +1,5 @@
 import {
+  Camera,
   CheckCircle,
   ChevronRight,
   Edit3,
@@ -12,9 +13,10 @@ import {
   X,
   Zap
 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { authAPI } from '../services/api';
 import { Ad, User } from '../types';
 
 // ---------------------------------------------------------------------------
@@ -108,6 +110,18 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   // Edit-profile state
   const [isEditing, setIsEditing] = useState(false);
   const [draftName, setDraftName] = useState('');
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const data = await authAPI.uploadAvatar(file);
+      onUpdateUser({ avatar: data.avatar });
+    } catch (err) {
+      console.error('Failed to upload avatar:', err);
+    }
+  };
 
   // ---------------------------------------------------------------------------
   // Unauthenticated guard
@@ -144,7 +158,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   // ---------------------------------------------------------------------------
   // Stats derived from ads
   // ---------------------------------------------------------------------------
-  const myAds = ads.filter((ad) => ad.postedByUserId === user.id);
+  const getOwnerId = (ad: Ad) => typeof ad.postedByUserId === 'object' && ad.postedByUserId ? (ad.postedByUserId as any)._id : ad.postedByUserId;
+  const myAds = ads.filter((ad) => getOwnerId(ad) === user.id);
   const approvedCount = myAds.filter((ad) => ad.approvalStatus === 'approved').length;
   const pendingCount = myAds.filter((ad) => ad.approvalStatus === 'pending').length;
   const rejectedCount = myAds.filter((ad) => ad.approvalStatus === 'rejected').length;
@@ -194,7 +209,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             {/* Avatar */}
-            <div className="relative shrink-0">
+            <div className="relative shrink-0 group">
               <img
                 src={user.avatar}
                 alt={user.name}
@@ -202,6 +217,20 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
               />
               {/* Online indicator */}
               <span className="absolute bottom-1 right-1 w-4 h-4 bg-emerald-400 border-2 border-white rounded-full" />
+              {/* Upload overlay */}
+              <button
+                onClick={() => avatarInputRef.current?.click()}
+                className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              >
+                <Camera className="w-6 h-6 text-white" />
+              </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleAvatarUpload}
+              />
             </div>
 
             {/* Info */}
