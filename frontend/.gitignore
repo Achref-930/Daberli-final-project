@@ -63,3 +63,4 @@ coverage/
 *.local
 *.pem
 yarn-error.log
+package-lock.json
