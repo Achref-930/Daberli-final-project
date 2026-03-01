@@ -179,8 +179,8 @@ const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   return (
-    <nav className={`sticky top-0 z-50 ${theme.bg} ${theme.border} border-b shadow-sm transition-colors duration-300`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className={`sticky top-0 z-50 overflow-visible ${theme.bg} ${theme.border} border-b shadow-sm transition-colors duration-300`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
         <div className="flex justify-between h-16 items-center gap-4">
 
           {/* Left: Back button + Logo */}
@@ -204,18 +204,12 @@ const Navbar: React.FC<NavbarProps> = ({
               </div>
             )}
             <div className={`h-6 w-px ${isDark ? 'bg-white/20' : 'bg-gray-200'}`}></div>
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className={`p-2 rounded-xl ${isDark ? 'bg-white/10' : 'bg-blue-600'} transition-colors`}>
-                <span className="font-bold text-xl text-white">D</span>
-              </div>
-              <div className="flex flex-col">
-                <span className={`font-bold text-xl leading-none tracking-tight ${theme.text}`}>DABERLI</span>
-                {isDark && (
-                  <span className={`text-xs font-medium uppercase tracking-widest ${theme.accent}`}>
-                    {variant!.replace('-', ' ')}
-                  </span>
-                )}
-              </div>
+            <Link to="/" className="flex items-center group">
+              <img
+                src="/logo.svg"
+                alt="Daberli"
+                className="h-50 w-auto object-contain drop-shadow-md"
+              />
             </Link>
           </div>
 
