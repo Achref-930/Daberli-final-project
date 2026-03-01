@@ -7,6 +7,26 @@ export interface User {
   email: string;
   avatar?: string;
   isAdmin?: boolean;
+  phone?: string;
+  isDeactivated?: boolean;
+  settings?: {
+    notifications?: {
+      email?: boolean;
+      push?: boolean;
+      adStatusAlerts?: boolean;
+      messageAlerts?: boolean;
+      marketingEmails?: boolean;
+    };
+    privacy?: {
+      publicProfile?: boolean;
+      showPhone?: boolean;
+      appOnlyContact?: boolean;
+    };
+    language?: 'en' | 'fr' | 'ar';
+    defaultWilaya?: string;
+    theme?: 'light' | 'dark' | 'system';
+    defaultCategory?: string;
+  };
 }
 
 export interface Ad {

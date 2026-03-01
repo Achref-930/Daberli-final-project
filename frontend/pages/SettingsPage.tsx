@@ -27,10 +27,11 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { WILAYAS } from '../constants';
+import { settingsAPI } from '../services/api';
 import { User } from '../types';
 
 // ---------------------------------------------------------------------------
@@ -168,15 +169,25 @@ const ChangePasswordModal: React.FC<{ isOpen: boolean; onClose: () => void }> = 
   const [confirm, setConfirm] = useState('');
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (!current) return setError('Enter your current password.');
     if (next.length < 8) return setError('New password must be at least 8 characters.');
     if (next !== confirm) return setError('Passwords do not match.');
-    setSaved(true);
-    setTimeout(() => { setSaved(false); onClose(); setCurrent(''); setNext(''); setConfirm(''); }, 1500);
+
+    setLoading(true);
+    try {
+      await settingsAPI.changePassword(current, next);
+      setSaved(true);
+      setTimeout(() => { setSaved(false); onClose(); setCurrent(''); setNext(''); setConfirm(''); }, 1500);
+    } catch (err: any) {
+      setError(err.message || 'Failed to update password.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -237,9 +248,10 @@ const ChangePasswordModal: React.FC<{ isOpen: boolean; onClose: () => void }> = 
             </div>
             <button
               type="submit"
-              className="w-full mt-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors"
+              disabled={loading}
+              className="w-full mt-2 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition-colors"
             >
-              Update Password
+              {loading ? 'Updating…' : 'Update Password'}
             </button>
           </form>
         )}
@@ -312,6 +324,97 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   const showSaved = (section: string) => {
     setSavedSection(section);
     setTimeout(() => setSavedSection(null), 2000);
+  };
+
+  // ── Load settings from backend ────────────────────────────────────────────
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    settingsAPI.get().then((data) => {
+      setPhone(data.phone || '');
+      setDeactivated(data.isDeactivated || false);
+      const s = data.settings;
+      setEmailNotifications(s.notifications.email);
+      setPushNotifications(s.notifications.push);
+      setAdStatusAlerts(s.notifications.adStatusAlerts);
+      setMessageAlerts(s.notifications.messageAlerts);
+      setMarketingEmails(s.notifications.marketingEmails);
+      setPublicProfile(s.privacy.publicProfile);
+      setShowPhone(s.privacy.showPhone);
+      setAppOnlyContact(s.privacy.appOnlyContact);
+      setLanguage(s.language);
+      setDefaultWilaya(s.defaultWilaya);
+      setTheme(s.theme);
+      setDefaultCategory(s.defaultCategory);
+      setSettingsLoaded(true);
+    }).catch(() => setSettingsLoaded(true));
+  }, [user]);
+
+  // ── Helpers to update a setting and persist to backend ────────────────────
+  const updateSetting = (path: string, value: any) => {
+    const parts = path.split('.');
+    const payload: any = {};
+    let current = payload;
+    for (let i = 0; i < parts.length - 1; i++) {
+      current[parts[i]] = {};
+      current = current[parts[i]];
+    }
+    current[parts[parts.length - 1]] = value;
+    settingsAPI.update({ settings: payload }).catch(console.error);
+  };
+
+  const handleToggle = (setter: (v: boolean) => void, path: string) => (value: boolean) => {
+    setter(value);
+    updateSetting(path, value);
+  };
+
+  const handlePhoneSave = (newPhone: string) => {
+    setPhone(newPhone);
+    setIsEditingPhone(false);
+    settingsAPI.updatePhone(newPhone).catch(console.error);
+    showSaved('phone');
+  };
+
+  const handleLanguageChange = (lang: 'en' | 'fr' | 'ar') => {
+    setLanguage(lang);
+    updateSetting('language', lang);
+  };
+
+  const handleDefaultWilayaChange = (w: string) => {
+    setDefaultWilaya(w);
+    updateSetting('defaultWilaya', w);
+  };
+
+  const handleThemeChange = (t: 'light' | 'dark' | 'system') => {
+    setTheme(t);
+    updateSetting('theme', t);
+  };
+
+  const handleDefaultCategoryChange = (c: string) => {
+    setDefaultCategory(c);
+    updateSetting('defaultCategory', c);
+  };
+
+  const handleDeactivate = async () => {
+    try {
+      await settingsAPI.deactivate();
+      setDeactivated(true);
+      setShowDeactivateModal(false);
+      onSignOut();
+    } catch (err) {
+      console.error('Deactivate error:', err);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      await settingsAPI.deleteAccount();
+      setShowDeleteModal(false);
+      onSignOut();
+    } catch (err) {
+      console.error('Delete account error:', err);
+    }
   };
 
 
@@ -458,7 +561,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
               {isEditingPhone ? (
                 <>
                   <button
-                    onClick={() => { setPhone(draftPhone.trim()); setIsEditingPhone(false); showSaved('phone'); }}
+                    onClick={() => handlePhoneSave(draftPhone.trim())}
                     className="p-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                   >
                     <Save className="w-3.5 h-3.5" />
@@ -524,35 +627,35 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
             iconBg="bg-blue-50"
             label="Email Notifications"
             description="Receive updates about your listings via email"
-            action={<Toggle checked={emailNotifications} onChange={setEmailNotifications} />}
+            action={<Toggle checked={emailNotifications} onChange={handleToggle(setEmailNotifications, 'notifications.email')} />}
           />
           <Row
             icon={<Smartphone className="w-4 h-4 text-violet-600" />}
             iconBg="bg-violet-50"
             label="Push Notifications"
             description="Get instant alerts on your device"
-            action={<Toggle checked={pushNotifications} onChange={setPushNotifications} />}
+            action={<Toggle checked={pushNotifications} onChange={handleToggle(setPushNotifications, 'notifications.push')} />}
           />
           <Row
             icon={<ShieldCheck className="w-4 h-4 text-emerald-600" />}
             iconBg="bg-emerald-50"
             label="Ad Status Alerts"
             description="Notify me when my ad is approved or rejected"
-            action={<Toggle checked={adStatusAlerts} onChange={setAdStatusAlerts} />}
+            action={<Toggle checked={adStatusAlerts} onChange={handleToggle(setAdStatusAlerts, 'notifications.adStatusAlerts')} />}
           />
           <Row
             icon={<Bell className="w-4 h-4 text-blue-500" />}
             iconBg="bg-blue-50"
             label="New Message Alerts"
             description="Notify me when a buyer messages me"
-            action={<Toggle checked={messageAlerts} onChange={setMessageAlerts} />}
+            action={<Toggle checked={messageAlerts} onChange={handleToggle(setMessageAlerts, 'notifications.messageAlerts')} />}
           />
           <Row
             icon={<Globe className="w-4 h-4 text-gray-500" />}
             iconBg="bg-gray-100"
             label="Marketing Emails"
             description="Tips, featured listings, and platform news"
-            action={<Toggle checked={marketingEmails} onChange={setMarketingEmails} />}
+            action={<Toggle checked={marketingEmails} onChange={handleToggle(setMarketingEmails, 'notifications.marketingEmails')} />}
           />
         </Section>
 
@@ -568,21 +671,21 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
             iconBg="bg-emerald-50"
             label="Public Profile"
             description="Allow other users to find and view your profile"
-            action={<Toggle checked={publicProfile} onChange={setPublicProfile} />}
+            action={<Toggle checked={publicProfile} onChange={handleToggle(setPublicProfile, 'privacy.publicProfile')} />}
           />
           <Row
             icon={<Phone className="w-4 h-4 text-blue-500" />}
             iconBg="bg-blue-50"
             label="Show Phone Number"
             description="Display your phone on listings for direct contact"
-            action={<Toggle checked={showPhone} onChange={setShowPhone} />}
+            action={<Toggle checked={showPhone} onChange={handleToggle(setShowPhone, 'privacy.showPhone')} />}
           />
           <Row
             icon={<Lock className="w-4 h-4 text-gray-500" />}
             iconBg="bg-gray-100"
             label="In-App Contact Only"
             description="Buyers can only contact you through Daberli messages"
-            action={<Toggle checked={appOnlyContact} onChange={setAppOnlyContact} />}
+            action={<Toggle checked={appOnlyContact} onChange={handleToggle(setAppOnlyContact, 'privacy.appOnlyContact')} />}
           />
         </Section>
 
@@ -601,7 +704,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
               {languages.map((lang) => (
                 <button
                   key={lang.code}
-                  onClick={() => setLanguage(lang.code)}
+                  onClick={() => handleLanguageChange(lang.code)}
                   className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${
                     language === lang.code
                       ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
@@ -626,7 +729,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
             <p className="text-xs text-gray-400 mb-2">Pre-fill your location when posting new ads</p>
             <select
               value={defaultWilaya}
-              onChange={(e) => setDefaultWilaya(e.target.value)}
+              onChange={(e) => handleDefaultWilayaChange(e.target.value)}
               className="w-full max-w-xs text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-700"
             >
               <option value="">No preference</option>
@@ -653,7 +756,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
               {themes.map((t) => (
                 <button
                   key={t.value}
-                  onClick={() => setTheme(t.value)}
+                  onClick={() => handleThemeChange(t.value)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all ${
                     theme === t.value
                       ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
@@ -691,7 +794,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
               {categories.map((c) => (
                 <button
                   key={c.value}
-                  onClick={() => setDefaultCategory(c.value)}
+                  onClick={() => handleDefaultCategoryChange(c.value)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${
                     defaultCategory === c.value
                       ? 'bg-blue-600 text-white border-blue-600'
@@ -807,7 +910,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
         message="Your profile and all your listings will be hidden until you sign in again."
         confirmLabel="Deactivate"
         danger={false}
-        onConfirm={() => { setDeactivated(true); setShowDeactivateModal(false); onSignOut(); }}
+        onConfirm={handleDeactivate}
         onCancel={() => setShowDeactivateModal(false)}
       />
       <ConfirmModal
@@ -815,7 +918,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
         title="Delete Account"
         message="This will permanently delete your account, all your listings, and your messages. This cannot be undone."
         confirmLabel="Delete Forever"
-        onConfirm={() => { setShowDeleteModal(false); onSignOut(); }}
+        onConfirm={handleDeleteAccount}
         onCancel={() => setShowDeleteModal(false)}
       />
     </div>

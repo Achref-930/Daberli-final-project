@@ -199,3 +199,76 @@ export const uploadAPI = {
     });
   },
 };
+
+// ─── Settings API ───────────────────────────────────────────────────────────
+export interface UserSettings {
+  phone: string;
+  isDeactivated: boolean;
+  settings: {
+    notifications: {
+      email: boolean;
+      push: boolean;
+      adStatusAlerts: boolean;
+      messageAlerts: boolean;
+      marketingEmails: boolean;
+    };
+    privacy: {
+      publicProfile: boolean;
+      showPhone: boolean;
+      appOnlyContact: boolean;
+    };
+    language: 'en' | 'fr' | 'ar';
+    defaultWilaya: string;
+    theme: 'light' | 'dark' | 'system';
+    defaultCategory: string;
+  };
+}
+
+export const settingsAPI = {
+  /** Fetch all settings for the current user */
+  async get(): Promise<UserSettings> {
+    return apiFetch('/settings');
+  },
+
+  /** Update settings (partial update — send only changed fields) */
+  async update(data: {
+    phone?: string;
+    settings?: Partial<UserSettings['settings']>;
+  }) {
+    return apiFetch('/settings', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  /** Change password */
+  async changePassword(currentPassword: string, newPassword: string) {
+    return apiFetch('/settings/password', {
+      method: 'PUT',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  },
+
+  /** Update phone number */
+  async updatePhone(phone: string) {
+    return apiFetch('/settings/phone', {
+      method: 'PUT',
+      body: JSON.stringify({ phone }),
+    });
+  },
+
+  /** Deactivate account */
+  async deactivate() {
+    return apiFetch('/settings/deactivate', { method: 'POST' });
+  },
+
+  /** Reactivate account */
+  async reactivate() {
+    return apiFetch('/settings/reactivate', { method: 'POST' });
+  },
+
+  /** Permanently delete account and all data */
+  async deleteAccount() {
+    return apiFetch('/settings/account', { method: 'DELETE' });
+  },
+};

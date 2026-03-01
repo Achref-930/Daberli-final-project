@@ -29,6 +29,33 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    phone: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    isDeactivated: {
+      type: Boolean,
+      default: false,
+    },
+    settings: {
+      notifications: {
+        email: { type: Boolean, default: true },
+        push: { type: Boolean, default: false },
+        adStatusAlerts: { type: Boolean, default: true },
+        messageAlerts: { type: Boolean, default: true },
+        marketingEmails: { type: Boolean, default: false },
+      },
+      privacy: {
+        publicProfile: { type: Boolean, default: true },
+        showPhone: { type: Boolean, default: false },
+        appOnlyContact: { type: Boolean, default: true },
+      },
+      language: { type: String, default: 'en', enum: ['en', 'fr', 'ar'] },
+      defaultWilaya: { type: String, default: '' },
+      theme: { type: String, default: 'light', enum: ['light', 'dark', 'system'] },
+      defaultCategory: { type: String, default: '', enum: ['', 'auto', 'real-estate', 'jobs', 'services'] },
+    },
   },
   { timestamps: true }
 );
