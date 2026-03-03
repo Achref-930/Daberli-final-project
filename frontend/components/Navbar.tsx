@@ -224,8 +224,6 @@ const Navbar: React.FC<NavbarProps> = ({
                   <button
                     onClick={toggleWilaya}
                     className="flex items-center gap-2 focus:outline-none"
-                    aria-expanded={isWilayaOpen}
-                    aria-haspopup="listbox"
                   >
                     <MapPin className={`w-4 h-4 shrink-0 ${theme.accent}`} />
                     <span className="text-sm font-medium">{selectedWilaya || 'All Algeria'}</span>
@@ -268,19 +266,18 @@ const Navbar: React.FC<NavbarProps> = ({
                       </div>
                     </div>
                     {/* Options list */}
-                    <ul role="listbox" className="max-h-60 overflow-y-auto py-1">
+                    <ul className="max-h-60 overflow-y-auto py-1">
                       {filteredWilayas.map((w) => (
-                        <li key={w.code || 'all'} role="option" aria-selected={selectedWilaya === w.name || (w.name === 'All Algeria' && !selectedWilaya)}>
-                          <button
-                            onClick={() => handleWilayaSelect(w.name)}
-                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                              (selectedWilaya === w.name || (w.name === 'All Algeria' && !selectedWilaya))
-                                ? 'bg-blue-50 text-blue-600 font-medium'
-                                : 'text-gray-700 hover:bg-gray-50'
-                            }`}
-                          >
-                            {w.code ? `${w.code} - ${w.name}` : w.name}
-                          </button>
+                        <li
+                          key={w.code || 'all'}
+                          onClick={() => handleWilayaSelect(w.name)}
+                          className={`w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer ${
+                            (selectedWilaya === w.name || (w.name === 'All Algeria' && !selectedWilaya))
+                              ? 'bg-blue-50 text-blue-600 font-medium'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          {w.code ? `${w.code} - ${w.name}` : w.name}
                         </li>
                       ))}
                     </ul>
@@ -295,10 +292,6 @@ const Navbar: React.FC<NavbarProps> = ({
                       <input
                         autoFocus
                         type="text"
-                        role="combobox"
-                        aria-autocomplete="list"
-                        aria-expanded={suggestions.length > 0}
-                        aria-activedescendant={suggIdx >= 0 ? `nav-sugg-${suggIdx}` : undefined}
                         value={searchQuery}
                         onChange={(e) => { setSearchQuery(e.target.value); setSuggIdx(-1); }}
                       placeholder="Search listings... (Enter to go)"
@@ -312,6 +305,8 @@ const Navbar: React.FC<NavbarProps> = ({
                       )}
                     </div>
                     <SearchSuggestions
+                      listId="navbar-search-suggestions"
+                      optionIdPrefix="nav-sugg"
                       suggestions={suggestions}
                       query={searchQuery}
                       selectedIndex={suggIdx}
@@ -345,7 +340,6 @@ const Navbar: React.FC<NavbarProps> = ({
               <div className="relative" ref={userRef}>
                 <button
                   onClick={() => setIsUserDropdownOpen((v) => !v)}
-                  aria-expanded={isUserDropdownOpen}
                   aria-haspopup="menu"
                   className={`flex items-center space-x-3 focus:outline-none ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-50'} p-1.5 pr-3 rounded-full transition-colors border ${isDark ? 'border-white/10' : 'border-transparent'}`}
                 >
@@ -365,7 +359,7 @@ const Navbar: React.FC<NavbarProps> = ({
 
                 {/* Dropdown Menu */}
                 {isUserDropdownOpen && (
-                  <div role="menu" className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl py-2 border border-gray-100 ring-1 ring-black ring-opacity-5 z-50 overflow-hidden origin-top-right">
+                  <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl py-2 border border-gray-100 ring-1 ring-black ring-opacity-5 z-50 overflow-hidden origin-top-right">
                     <div className="px-5 py-3 border-b border-gray-100 bg-gray-50/50 text-center">
                       <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Menu</p>
                     </div>
@@ -387,7 +381,6 @@ const Navbar: React.FC<NavbarProps> = ({
                         <Link
                           key={to}
                           to={to}
-                          role="menuitem"
                           onClick={closeUser}
                           className="flex items-center px-3 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-colors"
                         >
@@ -397,7 +390,6 @@ const Navbar: React.FC<NavbarProps> = ({
                     </div>
                     <div className="border-t border-gray-100 p-2 bg-gray-50/30">
                       <button
-                        role="menuitem"
                         onClick={handleSignOut}
                         className="flex w-full items-center px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors font-medium"
                       >
@@ -435,7 +427,6 @@ const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               aria-label="Toggle navigation menu"
-              aria-expanded={isMobileMenuOpen}
               onClick={() => setIsMobileMenuOpen((v) => !v)}
               className={`p-2 rounded-lg ${isDark ? 'text-white hover:bg-white/10' : 'text-gray-600 hover:bg-gray-100'}`}
             >

@@ -71,9 +71,6 @@ const ServicesPage: React.FC<CategoryPageProps> = ({ user, onSignIn, onSignOut, 
                       <Search className="w-5 h-5 text-slate-400 shrink-0" />
                       <input
                         type="text"
-                        role="combobox"
-                        aria-autocomplete="list"
-                        aria-expanded={isFocused && suggestions.length > 0}
                         placeholder="Service, expert name..."
                         value={query}
                         onChange={(e) => { setQuery(e.target.value); setSuggIdx(-1); }}
@@ -107,6 +104,8 @@ const ServicesPage: React.FC<CategoryPageProps> = ({ user, onSignIn, onSignOut, 
                 </div>
                 {isFocused && (
                   <SearchSuggestions
+                    listId="services-search-suggestions"
+                    optionIdPrefix="services-sugg"
                     suggestions={suggestions}
                     query={query}
                     selectedIndex={suggIdx}

@@ -9,6 +9,7 @@ const adRoutes = require('./routes/ads');
 const messageRoutes = require('./routes/messages');
 const uploadRoutes = require('./routes/upload');
 const settingsRoutes = require('./routes/settings');
+const legalRoutes = require('./routes/legal');
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/ads', adRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/legal', legalRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

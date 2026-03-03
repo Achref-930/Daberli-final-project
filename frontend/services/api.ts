@@ -272,3 +272,42 @@ export const settingsAPI = {
     return apiFetch('/settings/account', { method: 'DELETE' });
   },
 };
+
+export interface TermsSection {
+  heading: string;
+  body: string;
+}
+
+export interface TermsOfServiceResponse {
+  title: string;
+  version: string;
+  lastUpdated: string;
+  sections: TermsSection[];
+}
+
+export interface AboutStat {
+  label: string;
+  value: string;
+}
+
+export interface AboutSection {
+  heading: string;
+  body: string;
+}
+
+export interface AboutResponse {
+  title: string;
+  subtitle: string;
+  stats: AboutStat[];
+  sections: AboutSection[];
+}
+
+export const legalAPI = {
+  async getTerms(): Promise<TermsOfServiceResponse> {
+    return apiFetch('/legal/terms');
+  },
+
+  async getAbout(): Promise<AboutResponse> {
+    return apiFetch('/legal/about');
+  },
+};

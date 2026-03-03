@@ -45,8 +45,8 @@ const Toggle: React.FC<{ checked: boolean; onChange: (v: boolean) => void; disab
 }) => (
   <button
     type="button"
-    role="switch"
-    aria-checked={checked}
+    aria-label="Toggle setting"
+    title="Toggle setting"
     disabled={disabled}
     onClick={() => !disabled && onChange(!checked)}
     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
@@ -195,7 +195,7 @@ const ChangePasswordModal: React.FC<{ isOpen: boolean; onClose: () => void }> = 
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-xl border border-gray-100 max-w-sm w-full p-6 z-10">
-        <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
+        <button title="Close" aria-label="Close" onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
           <X className="w-4 h-4" />
         </button>
         <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 mb-4">
@@ -561,12 +561,16 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
               {isEditingPhone ? (
                 <>
                   <button
+                    title="Save phone number"
+                    aria-label="Save phone number"
                     onClick={() => handlePhoneSave(draftPhone.trim())}
                     className="p-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                   >
                     <Save className="w-3.5 h-3.5" />
                   </button>
                   <button
+                    title="Cancel phone edit"
+                    aria-label="Cancel phone edit"
                     onClick={() => setIsEditingPhone(false)}
                     className="p-1.5 rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
                   >
@@ -728,6 +732,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
             </div>
             <p className="text-xs text-gray-400 mb-2">Pre-fill your location when posting new ads</p>
             <select
+              id="default-wilaya"
+              title="Default Wilaya"
+              aria-label="Default Wilaya"
               value={defaultWilaya}
               onChange={(e) => handleDefaultWilayaChange(e.target.value)}
               className="w-full max-w-xs text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-700"

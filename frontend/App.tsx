@@ -15,6 +15,8 @@ import MyAdsPage from './pages/MyAdsPage';
 import ProfilePage from './pages/ProfilePage';
 import RealEstatePage from './pages/RealEstatePage';
 import ServicesPage from './pages/ServicesPage';
+import TermsPage from './pages/TermsPage';
+import AboutPage from './pages/AboutPage';
 import { Ad, AdMessage, Category, User } from './types';
 
 // New component to handle scrolling
@@ -310,6 +312,30 @@ const AppContent: React.FC = () => {
                 onSignOut={handleSignOut}
                 onPostAdClick={handlePostAdClick}
                 onUpdateUser={handleUpdateUser}
+                selectedWilaya={selectedWilaya}
+                onWilayaChange={setSelectedWilaya}
+              />
+            } />
+
+            <Route path="/terms-of-service" element={
+              <TermsPage
+                user={user}
+                onSignIn={openAuthModal}
+                onSignOut={handleSignOut}
+                onPostAdClick={handlePostAdClick}
+                ads={ads}
+                selectedWilaya={selectedWilaya}
+                onWilayaChange={setSelectedWilaya}
+              />
+            } />
+
+            <Route path="/about-us" element={
+              <AboutPage
+                user={user}
+                onSignIn={openAuthModal}
+                onSignOut={handleSignOut}
+                onPostAdClick={handlePostAdClick}
+                ads={ads}
                 selectedWilaya={selectedWilaya}
                 onWilayaChange={setSelectedWilaya}
               />
