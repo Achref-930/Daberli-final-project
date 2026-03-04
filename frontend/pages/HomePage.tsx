@@ -144,28 +144,6 @@ const HomePage: React.FC<HomePageProps> = ({
             </div>
           )}
         </div>
-        
-        {/* Option 3 — Slim trust bar */}
-        <div className="bg-slate-900 py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
-                  <span className="text-emerald-400 text-lg font-bold">✓</span>
-                </div>
-                <div>
-                  <p className="text-white font-bold text-sm">Verified Professionals & Listings</p>
-                  <p className="text-slate-400 text-xs mt-0.5">
-                    The <span className="text-emerald-400 font-semibold">green badge</span> means identity & credentials confirmed.
-                  </p>
-                </div>
-              </div>
-              <button className="shrink-0 text-xs font-semibold text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 px-5 py-2 rounded-full transition-colors">
-                Learn about Trust →
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* Option 2 — Trust cards */}
         <div className="bg-gray-50 border-y border-gray-100 py-10">
