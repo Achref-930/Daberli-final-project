@@ -13,29 +13,46 @@ function removeToken() {
   localStorage.removeItem('daberli_token');
 }
 
-// ─── Image compression (keeps total upload well under Vercel's 4.5MB limit) ──
+// ─── Image compression ──────────────────────────────────────────────────────
+// Per-image strategy (each file is checked independently):
+//   ≤ 500 KB → returned as-is, zero quality loss
+//   > 500 KB → Pass 1: resize to max 1400 px at 85 % quality
+//              Pass 2: only if still > 500 KB → re-encode at 72 %
+
+const PER_IMAGE_THRESHOLD = 500 * 1024; // 500 KB
+
+function _resizeAndEncode(
+  img: HTMLImageElement,
+  maxPx: number,
+  quality: number
+): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    const scale = Math.min(1, maxPx / Math.max(img.width, img.height));
+    const canvas = document.createElement('canvas');
+    canvas.width  = Math.round(img.width  * scale);
+    canvas.height = Math.round(img.height * scale);
+    canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => resolve(blob), 'image/jpeg', quality);
+  });
+}
+
 function compressImage(file: File): Promise<File> {
+  // ✅ Already small — upload original untouched
+  if (file.size <= PER_IMAGE_THRESHOLD) return Promise.resolve(file);
+
   return new Promise((resolve) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
-    img.onload = () => {
-      const MAX = 1200;
-      const scale = Math.min(1, MAX / Math.max(img.width, img.height));
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+    img.onload = async () => {
       URL.revokeObjectURL(url);
-      canvas.toBlob(
-        (blob) =>
-          resolve(
-            blob
-              ? new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' })
-              : file
-          ),
-        'image/jpeg',
-        0.78
-      );
+      const outName = file.name.replace(/\.[^.]+$/, '.jpg');
+      // Pass 1 — 1400 px, 85 % quality
+      let blob = await _resizeAndEncode(img, 1400, 0.85);
+      // Pass 2 — only triggered when pass 1 result is still large
+      if (blob && blob.size > PER_IMAGE_THRESHOLD) {
+        blob = await _resizeAndEncode(img, 1400, 0.72);
+      }
+      resolve(blob ? new File([blob], outName, { type: 'image/jpeg' }) : file);
     };
     img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
     img.src = url;
