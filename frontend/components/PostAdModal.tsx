@@ -38,7 +38,7 @@ import { Category } from '../types';
 interface PostAdModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (adData: any, imageFiles?: File[]) => void;
+  onSubmit: (adData: any, imageFiles?: File[]) => Promise<void>;
 }
 
 type Step = 1 | 2 | 3 | 4;
@@ -1117,6 +1117,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
   const [step, setStep] = useState<Step>(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [stepError, setStepError] = useState<StepError>(null);
 
   const [base, setBase] = useState<BaseForm>(INIT_BASE);
@@ -1167,7 +1168,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
 
   const reset = useCallback(() => {
     setBase(INIT_BASE); setImageFiles([]); setAutoD(INIT_AUTO); setReD(INIT_RE); setJobD(INIT_JOB); setSvcD(INIT_SVC);
-    setStep(1); setIsLoading(false); setIsSuccess(false); setStepError(null);
+    setStep(1); setIsLoading(false); setIsSuccess(false); setStepError(null); setSubmitError(null);
   }, []);
 
   const handleClose = () => { onClose(); setTimeout(reset, 300); };
@@ -1192,14 +1193,14 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
 
   const buildDetails = () => {
     switch (base.category) {
-      case 'auto': return { ...autoD };
-      case 'real-estate': return { ...reD };
+      case 'auto': return { ...autoD, description: base.description };
+      case 'real-estate': return { ...reD, description: base.description };
       case 'jobs': return { ...jobD, description: base.description };
       case 'services': return { ...svcD, description: base.description };
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Guard every step before submit — future-proof: adding a new step only requires updating validateStep
     for (let s = 1; s <= 4; s++) {
@@ -1207,21 +1208,25 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
       if (error) { setStep(s as Step); setStepError(error); return; }
     }
     setIsLoading(true);
+    setSubmitError(null);
 
-    onSubmit({
-      title: base.title,
-      category: base.category,
-      price: Number(base.price) || 0,
-      currency: base.priceUnit,
-      location: base.location,
-      details: buildDetails(),
-    }, imageFiles);
+    try {
+      await onSubmit({
+        title: base.title,
+        category: base.category,
+        price: Number(base.price) || 0,
+        currency: base.priceUnit,
+        location: base.location,
+        details: buildDetails(),
+      }, imageFiles);
 
-    localStorage.removeItem(DRAFT_KEY);
-    setTimeout(() => {
-      setIsLoading(false);
+      localStorage.removeItem(DRAFT_KEY);
       setIsSuccess(true);
-    }, 800);
+    } catch (err: any) {
+      setSubmitError(err?.message || 'Failed to publish your ad. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -1353,6 +1358,11 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
             </div>
 
             {/* ── Footer ─────────────────────────────────────────────────── */}
+            {!isSuccess && submitError && (
+              <div className="mx-6 mb-2 px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-600 font-medium">
+                {submitError}
+              </div>
+            )}
             {!isSuccess && (
               <div className="px-6 pb-5 pt-3 border-t border-gray-100 flex items-center gap-3">
                 {/* Back button */}

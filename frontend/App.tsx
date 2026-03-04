@@ -124,6 +124,7 @@ const AppContent: React.FC = () => {
       setAds((prevAds) => [newAd, ...prevAds]);
     } catch (error) {
       console.error('Failed to post ad:', error);
+      throw error;
     }
   };
 
