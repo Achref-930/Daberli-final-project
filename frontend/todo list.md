@@ -17,10 +17,14 @@ fix published card UI
 email acount verification
 edit posting process
 recreate footer and make it apeare on all pages only 
-add (update password) 
+//add (update password) 
 add verifyed acounte aproved by admin or moderators
 navbar UI update (adding categorys)
 add boosted ads logic
+fix notification logic
+add languages
+add theme
+ 
 
 
 
