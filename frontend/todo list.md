@@ -6,6 +6,7 @@ add moderators
 adding boosted ads
 create the logic of payment plans(free, plus, premium)
 unified cards UI
+edit the UI of ad page
 update Logo 
 change UI of sign in/ sign up card 
 blank page after sign out (https://daberli.vercel.app/messages)
@@ -20,7 +21,7 @@ add (update password)
 add verifyed acounte aproved by admin or moderators
 navbar UI update (adding categorys)
 add boosted ads logic
- 
+
 
 
 
