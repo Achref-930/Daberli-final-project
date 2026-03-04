@@ -145,30 +145,6 @@ const HomePage: React.FC<HomePageProps> = ({
           )}
         </div>
 
-        {/* Option 2 — Trust cards */}
-        <div className="bg-gray-50 border-y border-gray-100 py-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 text-center mb-6">
-              Why trust Daberli?
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {[
-                { icon: '🛡️', title: 'Verified Identities', desc: 'Every pro badge means we checked their ID and credentials.' },
-                { icon: '💬', title: 'Real Reviews', desc: 'Ratings come from confirmed buyers and renters only.' },
-                { icon: '🔒', title: 'Secure Contact', desc: 'Your number stays private until you choose to share it.' },
-              ].map(item => (
-                <div key={item.title} className="flex items-start gap-4 bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-                  <span className="text-2xl shrink-0">{item.icon}</span>
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">{item.title}</p>
-                    <p className="text-xs text-gray-500 mt-1 leading-relaxed">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
       </main>
 
       <Footer />
