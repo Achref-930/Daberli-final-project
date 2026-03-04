@@ -13,6 +13,35 @@ function removeToken() {
   localStorage.removeItem('daberli_token');
 }
 
+// ─── Image compression (keeps total upload well under Vercel's 4.5MB limit) ──
+function compressImage(file: File): Promise<File> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const MAX = 1200;
+      const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(
+        (blob) =>
+          resolve(
+            blob
+              ? new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' })
+              : file
+          ),
+        'image/jpeg',
+        0.78
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+
 // ─── Generic fetch wrapper ──────────────────────────────────────────────────
 async function apiFetch<T = any>(
   endpoint: string,
@@ -128,8 +157,9 @@ export const adsAPI = {
       formData.append('details', JSON.stringify(adData.details));
     }
 
-    if (imageFiles) {
-      imageFiles.forEach((file) => formData.append('images', file));
+    if (imageFiles && imageFiles.length > 0) {
+      const compressed = await Promise.all(imageFiles.map(compressImage));
+      compressed.forEach((file) => formData.append('images', file));
     }
 
     return apiFetch('/ads', {
@@ -147,8 +177,9 @@ export const adsAPI = {
     if (adData.location) formData.append('location', adData.location);
     if (adData.details) formData.append('details', JSON.stringify(adData.details));
 
-    if (imageFiles) {
-      imageFiles.forEach((file) => formData.append('images', file));
+    if (imageFiles && imageFiles.length > 0) {
+      const compressed = await Promise.all(imageFiles.map(compressImage));
+      compressed.forEach((file) => formData.append('images', file));
     }
 
     return apiFetch(`/ads/${id}`, {
