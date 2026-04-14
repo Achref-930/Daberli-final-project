@@ -5,12 +5,20 @@ const { protect, admin } = require('../middleware/auth');
 const { uploadAdImages } = require('../middleware/upload');
 const { destroyManyByUrls } = require('../utils/cloudinaryHelper');
 
+const optionalProtect = (req, res, next) => {
+  if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer')) {
+    return next();
+  }
+
+  return protect(req, res, next);
+};
+
 // @route   GET /api/ads
 // @desc    Get all approved ads (+ user's own pending/rejected)
 // @access  Public
-router.get('/', async (req, res) => {
+router.get('/', optionalProtect, async (req, res) => {
   try {
-    const { category, location, q, userId } = req.query;
+    const { category, location, q } = req.query;
     const filter = {};
 
     if (category && category !== 'all') {
@@ -26,11 +34,11 @@ router.get('/', async (req, res) => {
     }
 
     // By default, only show approved ads
-    // If userId is provided, also show that user's non-approved ads
-    if (userId) {
+    // If authenticated, also show the user's own non-approved ads
+    if (req.user) {
       filter.$or = [
         { approvalStatus: 'approved' },
-        { postedByUserId: userId },
+        { postedByUserId: req.user._id },
       ];
     } else {
       filter.approvalStatus = 'approved';

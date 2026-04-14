@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const connectDB = require('./config/db');
 
 // Import routes
@@ -12,6 +13,17 @@ const settingsRoutes = require('./routes/settings');
 const legalRoutes = require('./routes/legal');
 
 const app = express();
+
+const strictAuthLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 15,
+  message: 'Too many attempts, please try again later',
+});
+
+const generalApiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
@@ -40,6 +52,7 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use('/api', generalApiLimiter);
 
 // Ensure DB connection before API handlers (safe for serverless cold starts)
 app.use('/api', async (req, res, next) => {
@@ -53,6 +66,7 @@ app.use('/api', async (req, res, next) => {
 });
 
 // API Routes
+app.use('/api/auth', strictAuthLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/ads', adRoutes);
 app.use('/api/messages', messageRoutes);
