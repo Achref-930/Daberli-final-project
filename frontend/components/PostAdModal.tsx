@@ -38,7 +38,16 @@ import { Category } from '../types';
 interface PostAdModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (adData: any, imageFiles?: File[]) => Promise<void>;
+  onSubmit: (data: PostAdFormData, images?: File[]) => Promise<void>;
+}
+
+export interface PostAdFormData {
+  title: string;
+  category: 'auto' | 'real-estate' | 'jobs' | 'services';
+  price: number;
+  currency: string;
+  location: string;
+  details?: Record<string, any>;
 }
 
 type Step = 1 | 2 | 3 | 4;
@@ -1200,32 +1209,29 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Guard every step before submit — future-proof: adding a new step only requires updating validateStep
-    for (let s = 1; s <= 4; s++) {
-      const error = validateStep(s as Step, base, svcD);
-      if (error) { setStep(s as Step); setStepError(error); return; }
-    }
-    setIsLoading(true);
-    setSubmitError(null);
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+    if (!validateStep(currentStep)) return;
 
+    setIsSubmitting(true);
     try {
-      await onSubmit({
+      const adData: PostAdFormData = {
         title: base.title,
+        description: base.description,
         category: base.category,
         price: Number(base.price) || 0,
         currency: base.priceUnit,
         location: base.location,
         details: buildDetails(),
-      }, imageFiles);
+      };
+      await onSubmit(adData, imageFiles);
 
       localStorage.removeItem(DRAFT_KEY);
       setIsSuccess(true);
     } catch (err: any) {
       setSubmitError(err?.message || 'Failed to publish your ad. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
