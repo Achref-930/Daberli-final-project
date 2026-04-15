@@ -1,6 +1,6 @@
 import { Zap, Wrench, Car, Home, Briefcase } from 'lucide-react';
 import React from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import FloatingActionBar from '../components/FloatingActionBar';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
@@ -10,36 +10,26 @@ import AutoCard from '../components/cards/AutoCard';
 import RealEstateCard from '../components/cards/RealEstateCard';
 import JobCard from '../components/cards/JobCard';
 import ServiceCardPro from '../components/cards/ServiceCard';
-import { Ad, Category, User } from '../types';
+import { Category } from '../types';
+import { useAds } from '../contexts/AdsContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface HomePageProps {
   selectedWilaya: string;
   onWilayaChange: (wilaya: string) => void;
-  user: User | null;
-  ads: Ad[];
-  onSignIn: () => void;
-  onSignOut: () => void;
-  onPostAd: () => void;
-  onSearch: (query: string, category: Category | 'all') => void;
-  activeCategory: Category | 'all';
-  setActiveCategory: (category: Category | 'all') => void;
 }
 
 const HomePage: React.FC<HomePageProps> = ({
   selectedWilaya,
   onWilayaChange,
-  user,
-  ads,
-  onSignIn,
-  onSignOut,
-  onPostAd,
-  onSearch,
-  activeCategory,
-  setActiveCategory
 }) => {
+  const { ads, isLoading, error } = useAds();
+  const { user, openAuthModal, handleSignOut, openPostAdModal } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get('q') ?? '';
+  const activeCategory = searchParams.get('category') as Category | 'all' || 'all';
+
   // Only show admin-boosted ads in the featured section
   const boostedAds = ads.filter((ad) => ad.isBoosted);
 
@@ -57,101 +47,117 @@ const HomePage: React.FC<HomePageProps> = ({
         selectedWilaya={selectedWilaya} 
         onWilayaChange={onWilayaChange} 
         user={user}
-        onSignIn={onSignIn}
-        onSignOut={onSignOut}
-        onPostAd={onPostAd}
+        onSignIn={openAuthModal}
+        onSignOut={handleSignOut}
+        onPostAd={openPostAdModal}
         ads={ads}
       />
       
       <main className="grow">
         <Hero />
 
-        {/* Cross-category search results */}
-        {searchQuery && (() => {
-          const q = searchQuery.toLowerCase();
-          const results = ads.filter(ad =>
-            ad.title.toLowerCase().includes(q) ||
-            ad.location.toLowerCase().includes(q) ||
-            ad.category.toLowerCase().includes(q)
-          );
-          return (
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">
-                    Results for &ldquo;<span className="text-blue-600">{searchQuery}</span>&rdquo;
-                  </h2>
-                  <p className="text-sm text-gray-500 mt-0.5">{results.length} listing{results.length !== 1 ? 's' : ''} found</p>
+        {isLoading && (
+          <div className="text-center py-10">
+            <p className="text-gray-500">Loading listings...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="text-center py-10">
+            <p className="text-red-500">Error: {error}</p>
+          </div>
+        )}
+
+        {!isLoading && !error && (
+          <>
+            {/* Cross-category search results */}
+            {searchQuery && (() => {
+              const q = searchQuery.toLowerCase();
+              const results = ads.filter(ad =>
+                (ad.title.toLowerCase().includes(q) ||
+                ad.location.toLowerCase().includes(q) ||
+                ad.category.toLowerCase().includes(q)) &&
+                (activeCategory === 'all' || ad.category === activeCategory)
+              );
+              return (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900">
+                        Results for &ldquo;<span className="text-blue-600">{searchQuery}</span>&rdquo;
+                      </h2>
+                      <p className="text-sm text-gray-500 mt-0.5">{results.length} listing{results.length !== 1 ? 's' : ''} found</p>
+                    </div>
+                    <button onClick={() => setSearchParams({})} className="text-sm text-blue-600 hover:underline">Clear search ×</button>
+                  </div>
+                  {results.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {results.map(ad => <ServiceCard key={ad.id} ad={ad} />)}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-gray-200 rounded-2xl text-center">
+                      <p className="text-gray-400 font-medium">No listings match &ldquo;{searchQuery}&rdquo;</p>
+                      <button onClick={() => setSearchParams({})} className="mt-3 text-sm text-blue-600 hover:underline">Browse all listings</button>
+                    </div>
+                  )}
                 </div>
-                <Link to="/" className="text-sm text-blue-600 hover:underline">Clear search ×</Link>
+              );
+            })()}
+            
+            {/* Boosted / Sponsored Ads Section */}
+            <div id="featured-listings" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+              <div className="flex justify-between items-end mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-amber-100 rounded-xl">
+                    <Zap className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Featured Listings</h2>
+                    <p className="text-gray-500 mt-1">Hand-picked and promoted by Daberli.</p>
+                  </div>
+                </div>
               </div>
-              {results.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {results.map(ad => <ServiceCard key={ad.id} ad={ad} />)}
+
+              {boostedAds.length > 0 ? (
+                <div className="space-y-10">
+                  {categorySections.map(({ key, label, icon: Icon, ads: catAds, Card, accent }) =>
+                    catAds.length > 0 ? (
+                      <div key={key}>
+                        <div className="flex items-center gap-3 mb-5">
+                          <div className={`p-2 rounded-xl ${accent}`}>
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <h3 className="text-lg font-bold text-gray-800">{label}</h3>
+                          <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{catAds.length}</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {catAds.map((ad) => (
+                            <Card key={ad.id} ad={ad} />
+                          ))}
+                        </div>
+                      </div>
+                    ) : null
+                  )}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-gray-200 rounded-2xl text-center">
-                  <p className="text-gray-400 font-medium">No listings match &ldquo;{searchQuery}&rdquo;</p>
-                  <Link to="/" className="mt-3 text-sm text-blue-600 hover:underline">Browse all listings</Link>
+                <div className="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50">
+                  <div className="p-4 bg-amber-50 rounded-2xl mb-4">
+                    <Zap className="w-8 h-8 text-amber-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-1">No Featured Ads Yet</h3>
+                  <p className="text-sm text-gray-400">Admins can boost listings to appear here.</p>
                 </div>
               )}
             </div>
-          );
-        })()}
-        
-        {/* Boosted / Sponsored Ads Section */}
-        <div id="featured-listings" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-          <div className="flex justify-between items-end mb-8">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 rounded-xl">
-                <Zap className="w-5 h-5 text-amber-500" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Featured Listings</h2>
-                <p className="text-gray-500 mt-1">Hand-picked and promoted by Daberli.</p>
-              </div>
-            </div>
-          </div>
-
-          {boostedAds.length > 0 ? (
-            <div className="space-y-10">
-              {categorySections.map(({ key, label, icon: Icon, ads: catAds, Card, accent }) =>
-                catAds.length > 0 ? (
-                  <div key={key}>
-                    <div className="flex items-center gap-3 mb-5">
-                      <div className={`p-2 rounded-xl ${accent}`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <h3 className="text-lg font-bold text-gray-800">{label}</h3>
-                      <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{catAds.length}</span>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {catAds.map((ad) => (
-                        <Card key={ad.id} ad={ad} />
-                      ))}
-                    </div>
-                  </div>
-                ) : null
-              )}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50">
-              <div className="p-4 bg-amber-50 rounded-2xl mb-4">
-                <Zap className="w-8 h-8 text-amber-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-700 mb-1">No Featured Ads Yet</h3>
-              <p className="text-sm text-gray-400">Admins can boost listings to appear here.</p>
-            </div>
-          )}
-        </div>
-
+          </>
+        )}
       </main>
 
       <Footer />
       <FloatingActionBar 
         onHome={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        onPostAd={onPostAd} 
-        onProfile={user ? () => navigate('/profile') : onSignIn}
+        onPostAd={openPostAdModal} 
+        onProfile={user ? () => navigate('/profile') : openAuthModal}
       />
     </div>
   );

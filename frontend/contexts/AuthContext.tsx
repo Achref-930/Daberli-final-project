@@ -5,9 +5,12 @@ import { authAPI } from '../services/api';
 interface AuthContextType {
   user: User | null;
   isAuthModalOpen: boolean;
+  isPostAdModalOpen: boolean;
   isLoading: boolean;
   openAuthModal: () => void;
   closeAuthModal: () => void;
+  openPostAdModal: () => void;
+  closePostAdModal: () => void;
   handleSignIn: (email: string, password: string, name?: string, mode?: 'login' | 'register') => Promise<void>;
   handleSignOut: () => void;
   handleUpdateUser: (updates: Partial<User>) => Promise<void>;
@@ -18,6 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isPostAdModalOpen, setIsPostAdModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -38,6 +42,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const openAuthModal = () => setIsAuthModalOpen(true);
   const closeAuthModal = () => setIsAuthModalOpen(false);
+  const openPostAdModal = () => setIsPostAdModalOpen(true);
+  const closePostAdModal = () => setIsPostAdModalOpen(false);
 
   const handleSignIn = async (email: string, password: string, name?: string, mode?: 'login' | 'register') => {
     try {
@@ -75,9 +81,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const value = {
     user,
     isAuthModalOpen,
+    isPostAdModalOpen,
     isLoading,
     openAuthModal,
     closeAuthModal,
+    openPostAdModal,
+    closePostAdModal,
     handleSignIn,
     handleSignOut,
     handleUpdateUser,
