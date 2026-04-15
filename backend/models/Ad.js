@@ -83,4 +83,6 @@ adSchema.virtual('datePosted').get(function () {
 adSchema.set('toJSON', { virtuals: true });
 adSchema.set('toObject', { virtuals: true });
 
+adSchema.index({ title: 'text', location: 'text' });
+
 module.exports = mongoose.model('Ad', adSchema);

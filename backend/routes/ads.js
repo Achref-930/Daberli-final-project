@@ -33,7 +33,7 @@ router.get('/', optionalProtect, async (req, res) => {
     }
 
     if (q) {
-      filter.title = { $regex: q, $options: 'i' };
+      filter.$text = { $search: q };
     }
 
     // By default, only show approved ads
