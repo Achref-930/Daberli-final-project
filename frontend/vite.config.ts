@@ -7,6 +7,7 @@ dotenv.config();
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    const backendUrl = env.BACKEND_URL || 'http://localhost:5000';
     return {
       server: {
         port: 3000,
@@ -14,7 +15,7 @@ export default defineConfig(({ mode }) => {
         historyApiFallback: true,
         proxy: {
           '/api': {
-            target: env.BACKEND_URL,
+            target: backendUrl,
             changeOrigin: true,
           },
         },

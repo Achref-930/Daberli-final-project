@@ -78,10 +78,21 @@ async function apiFetch<T = any>(
     headers['Content-Type'] = 'application/json';
   }
 
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  const requestUrl = `${API_BASE}${endpoint}`;
+  let res: Response;
+
+  try {
+    res = await fetch(requestUrl, {
+      ...options,
+      headers,
+    });
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : 'Unknown network error';
+    const hint = API_BASE.startsWith('http')
+      ? `Could not reach ${API_BASE}`
+      : 'Could not reach backend via Vite proxy (/api)';
+    throw new Error(`Network request failed for ${requestUrl}. ${hint}. ${reason}`);
+  }
 
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
