@@ -5,7 +5,7 @@ const { protect, generateToken } = require('../middleware/auth');
 const { uploadAvatar } = require('../middleware/upload');
 const { destroyByUrl } = require('../utils/cloudinaryHelper');
 
-const ADMIN_EMAILS = ['admin@daberli.dz'];
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'admin@daberli.dz').split(',');
 
 // @route   POST /api/auth/register
 // @desc    Register a new user
@@ -28,7 +28,7 @@ router.post('/register', async (req, res) => {
       email,
       password,
       avatar,
-      isAdmin: ADMIN_EMAILS.includes(email.toLowerCase()),
+      isAdmin: ADMIN_EMAILS.map((adminEmail) => adminEmail.trim().toLowerCase()).includes(email.toLowerCase()),
     });
 
     const token = generateToken(user._id);

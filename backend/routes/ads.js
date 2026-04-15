@@ -4,6 +4,7 @@ const Ad = require('../models/Ad');
 const { protect, admin } = require('../middleware/auth');
 const { uploadAdImages } = require('../middleware/upload');
 const { destroyManyByUrls } = require('../utils/cloudinaryHelper');
+const { z } = require('zod');
 
 const optionalProtect = (req, res, next) => {
   if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer')) {
@@ -81,7 +82,15 @@ router.get('/:id', async (req, res) => {
 // @access  Private
 router.post('/', protect, uploadAdImages.array('images', 10), async (req, res) => {
   try {
-    const { title, category, price, currency, location, details } = req.body;
+    const validation = adSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: validation.error.flatten().fieldErrors,
+      });
+    }
+    const { title, category, price, currency, location } = validation.data;
+    const { details } = req.body;
 
     // Collect Cloudinary URLs from uploaded files
     const imageUrls = req.files ? req.files.map((f) => f.path) : [];
@@ -113,6 +122,16 @@ router.post('/', protect, uploadAdImages.array('images', 10), async (req, res) =
 // @access  Private (owner only)
 router.put('/:id', protect, uploadAdImages.array('images', 10), async (req, res) => {
   try {
+    const validation = adSchema.partial().safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: validation.error.flatten().fieldErrors,
+      });
+    }
+    const validatedData = validation.data;
+    const { details } = req.body;
+
     const ad = await Ad.findById(req.params.id);
 
     if (!ad) {
@@ -124,13 +143,7 @@ router.put('/:id', protect, uploadAdImages.array('images', 10), async (req, res)
       return res.status(403).json({ message: 'Not authorized to update this ad' });
     }
 
-    const { title, category, price, currency, location, details } = req.body;
-
-    if (title) ad.title = title;
-    if (category) ad.category = category;
-    if (price) ad.price = Number(price);
-    if (currency) ad.currency = currency;
-    if (location) ad.location = location;
+    Object.assign(ad, validatedData);
     if (details) ad.details = JSON.parse(details);
 
     // Handle new images — remove old ones from Cloudinary, then replace

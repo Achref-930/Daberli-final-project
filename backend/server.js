@@ -25,13 +25,15 @@ const generalApiLimiter = rateLimit({
   max: 100,
 });
 
+// Set CORS_ALLOWED_ORIGINS in production .env as a comma-separated list of frontend URLs.
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  ...(process.env.CORS_ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
   'http://localhost:3000',
   'http://127.0.0.1:3000',
 ].filter(Boolean);
-
-const isVercelFrontend = (origin) => /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin);
 
 // Middleware
 app.use(cors({
@@ -40,7 +42,7 @@ app.use(cors({
       return callback(null, true);
     }
 
-    if (allowedOrigins.includes(origin) || isVercelFrontend(origin)) {
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
 
