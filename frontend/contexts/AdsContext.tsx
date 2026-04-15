@@ -27,7 +27,7 @@ export const AdsProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setError(null);
     try {
       const data = await adsAPI.getAll({ userId: user?.id });
-      setAds(data.ads); // Assuming the API now returns { ads, total, ... }
+      setAds(data.ads || []); // Ensure ads is always an array
     } catch (err: any) {
       setError(err.message || 'Failed to fetch ads');
       console.error('Failed to fetch ads:', err);
