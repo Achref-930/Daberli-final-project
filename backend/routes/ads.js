@@ -20,6 +20,8 @@ const optionalProtect = (req, res, next) => {
 router.get('/', optionalProtect, async (req, res) => {
   try {
     const { category, location, q } = req.query;
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = Math.min(parseInt(req.query.limit, 10) || 20, 50);
     const filter = {};
 
     if (category && category !== 'all') {
@@ -45,11 +47,21 @@ router.get('/', optionalProtect, async (req, res) => {
       filter.approvalStatus = 'approved';
     }
 
-    const ads = await Ad.find(filter)
-      .sort({ createdAt: -1 })
-      .populate('postedByUserId', 'name email avatar');
+    const [ads, total] = await Promise.all([
+      Ad.find(filter)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .populate('postedByUserId', 'name email avatar'),
+      Ad.countDocuments(filter),
+    ]);
 
-    res.json(ads);
+    res.json({
+      ads,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    });
   } catch (error) {
     console.error('Get ads error:', error);
     res.status(500).json({ message: error.message || 'Server error' });

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Message = require('../models/Message');
+const Ad = require('../models/Ad');
 const { protect } = require('../middleware/auth');
 
 // @route   GET /api/messages/:adId
@@ -49,13 +50,20 @@ router.get('/', protect, async (req, res) => {
 // @access  Private
 router.post('/', protect, async (req, res) => {
   try {
-    const { adId, text, senderRole } = req.body;
+    const { adId, text } = req.body;
+
+    const ad = await Ad.findById(adId);
+    if (!ad) {
+      return res.status(404).json({ message: 'Ad not found' });
+    }
+
+    const senderRole = ad.postedByUserId.toString() === req.user._id.toString() ? 'owner' : 'buyer';
 
     const message = await Message.create({
       adId,
       senderId: req.user._id,
       senderName: req.user.name,
-      senderRole: senderRole || 'buyer',
+      senderRole,
       text,
     });
 
