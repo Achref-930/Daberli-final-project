@@ -218,7 +218,7 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
 }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const ad = ads.find((a) => a.id === id || (a as any)._id === id);
+  const ad = ads.find((a) => a.id === id || a._id === id);
 
   const [message, setMessage] = useState('');
   const [applicantName, setApplicantName] = useState('');
@@ -360,8 +360,8 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
   }
 
   const theme = CATEGORY_THEME[ad.category];
-  const adId = (ad as any)._id || ad.id;
-  const relatedAds = ads.filter((a) => a.category === ad.category && ((a as any)._id || a.id) !== adId).slice(0, 3);
+  const adId = ad._id || ad.id;
+  const relatedAds = ads.filter((a) => a.category === ad.category && (a._id || a.id) !== adId).slice(0, 3);
   const isJob = ad.category === 'jobs';
 
   const handleSubmit = (e: React.FormEvent) => {

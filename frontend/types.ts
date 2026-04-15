@@ -43,7 +43,7 @@ export interface Ad {
   isBoosted?: boolean; // Admin-selected promoted ads
   rating?: number; // For Pros
   approvalStatus?: ApprovalStatus;
-  postedByUserId?: string | { _id: string; name: string; email: string; avatar?: string };
+  postedByUserId?: string | { _id: string; name: string; email: string; avatar: string };
   datePosted: string;
   details?: {
     [key: string]: string | number; // Dynamic details based on category (e.g., Mileage, Sq meters)
