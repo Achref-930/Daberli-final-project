@@ -27,6 +27,7 @@ const generalApiLimiter = rateLimit({
 
 // Set CORS_ALLOWED_ORIGINS in production .env as a comma-separated list of frontend URLs.
 const allowedOrigins = [
+  'https://daberli.vercel.app', // Hardcoded production frontend
   ...(process.env.CORS_ALLOWED_ORIGINS || '')
     .split(',')
     .map((origin) => origin.trim())
