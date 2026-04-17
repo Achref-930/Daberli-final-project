@@ -1,5 +1,7 @@
 const API_BASE = (
-  import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_BASE_URL || '/api')
+  import.meta.env.DEV
+    ? '/api' // In dev, use the Vite proxy
+    : `${(import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')}/api` // In prod, use the env var and append /api
 ).replace(/\/$/, '');
 
 // ─── Token helpers ──────────────────────────────────────────────────────────
