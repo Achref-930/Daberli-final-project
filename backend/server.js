@@ -83,13 +83,19 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.json({ status: 'ok', service: 'daberli-backend' });
+  res.json({ status: 'ok', message: 'Welcome to the Daberli Backend API root' });
 });
 
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ message: err.message || 'Internal server error' });
+});
+
+// Catch-all for any other request, returns 404
+app.use('*', (req, res) => {
+  console.log(`[404] Unmatched route: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ message: 'Not Found' });
 });
 
 const PORT = process.env.PORT;
