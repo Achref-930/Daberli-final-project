@@ -11,5 +11,8 @@
     "server.js": {
       "maxDuration": 30
     }
+  },
+  "env": {
+    "CORS_ALLOWED_ORIGINS": "@cors_allowed_origins"
   }
 }
