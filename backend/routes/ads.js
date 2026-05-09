@@ -1,10 +1,28 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Ad = require('../models/Ad');
 const { protect, admin } = require('../middleware/auth');
 const { uploadAdImages } = require('../middleware/upload');
 const { destroyManyByUrls } = require('../utils/cloudinaryHelper');
 const { z } = require('zod');
+
+const adSchema = z.object({
+  title: z.string().trim().min(1),
+  category: z.enum(['auto', 'real-estate', 'jobs', 'services']),
+  price: z.coerce.number().nonnegative(),
+  currency: z.string().optional(),
+  location: z.string().trim().min(1),
+});
+
+const isValidObjectId = (value) => mongoose.Types.ObjectId.isValid(value);
+const validateObjectIdParam = (paramName = 'id') => (req, res, next) => {
+  const value = req.params[paramName];
+  if (!isValidObjectId(value)) {
+    return res.status(400).json({ message: `Invalid ${paramName}` });
+  }
+  return next();
+};
 
 const optionalProtect = (req, res, next) => {
   if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer')) {
@@ -71,7 +89,7 @@ router.get('/', optionalProtect, async (req, res) => {
 // @route   GET /api/ads/:id
 // @desc    Get a single ad by ID
 // @access  Public
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateObjectIdParam('id'), async (req, res) => {
   try {
     const ad = await Ad.findById(req.params.id).populate(
       'postedByUserId',
@@ -132,7 +150,7 @@ router.post('/', protect, uploadAdImages.array('images', 10), async (req, res) =
 // @route   PUT /api/ads/:id
 // @desc    Update an ad
 // @access  Private (owner only)
-router.put('/:id', protect, uploadAdImages.array('images', 10), async (req, res) => {
+router.put('/:id', protect, validateObjectIdParam('id'), uploadAdImages.array('images', 10), async (req, res) => {
   try {
     const validation = adSchema.partial().safeParse(req.body);
     if (!validation.success) {
@@ -183,7 +201,7 @@ router.put('/:id', protect, uploadAdImages.array('images', 10), async (req, res)
 // @route   DELETE /api/ads/:id
 // @desc    Delete an ad
 // @access  Private (owner or admin)
-router.delete('/:id', protect, async (req, res) => {
+router.delete('/:id', protect, validateObjectIdParam('id'), async (req, res) => {
   try {
     const ad = await Ad.findById(req.params.id);
 
@@ -212,7 +230,7 @@ router.delete('/:id', protect, async (req, res) => {
 // @route   PUT /api/ads/:id/approve
 // @desc    Approve an ad
 // @access  Private (admin only)
-router.put('/:id/approve', protect, admin, async (req, res) => {
+router.put('/:id/approve', protect, admin, validateObjectIdParam('id'), async (req, res) => {
   try {
     const ad = await Ad.findByIdAndUpdate(
       req.params.id,
@@ -234,7 +252,7 @@ router.put('/:id/approve', protect, admin, async (req, res) => {
 // @route   PUT /api/ads/:id/reject
 // @desc    Reject an ad
 // @access  Private (admin only)
-router.put('/:id/reject', protect, admin, async (req, res) => {
+router.put('/:id/reject', protect, admin, validateObjectIdParam('id'), async (req, res) => {
   try {
     const ad = await Ad.findByIdAndUpdate(
       req.params.id,
@@ -249,6 +267,60 @@ router.put('/:id/reject', protect, admin, async (req, res) => {
     res.json(ad);
   } catch (error) {
     console.error('Reject ad error:', error);
+    res.status(500).json({ message: error.message || 'Server error' });
+  }
+});
+
+// @route   PUT /api/ads/:id/boost
+// @desc    Boost an ad
+// @access  Private (owner or admin)
+router.put('/:id/boost', protect, validateObjectIdParam('id'), async (req, res) => {
+  try {
+    const ad = await Ad.findById(req.params.id);
+
+    if (!ad) {
+      return res.status(404).json({ message: 'Ad not found' });
+    }
+
+    // Check ownership or admin status
+    if (ad.postedByUserId.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+      return res.status(403).json({ message: 'Not authorized to boost this ad' });
+    }
+
+    ad.isBoosted = true;
+    await ad.save();
+
+    const populated = await ad.populate('postedByUserId', 'name email avatar');
+    res.json(populated);
+  } catch (error) {
+    console.error('Boost ad error:', error);
+    res.status(500).json({ message: error.message || 'Server error' });
+  }
+});
+
+// @route   PUT /api/ads/:id/unboost
+// @desc    Unboost an ad
+// @access  Private (owner or admin)
+router.put('/:id/unboost', protect, validateObjectIdParam('id'), async (req, res) => {
+  try {
+    const ad = await Ad.findById(req.params.id);
+
+    if (!ad) {
+      return res.status(404).json({ message: 'Ad not found' });
+    }
+
+    // Check ownership or admin status
+    if (ad.postedByUserId.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+      return res.status(403).json({ message: 'Not authorized to unboost this ad' });
+    }
+
+    ad.isBoosted = false;
+    await ad.save();
+
+    const populated = await ad.populate('postedByUserId', 'name email avatar');
+    res.json(populated);
+  } catch (error) {
+    console.error('Unboost ad error:', error);
     res.status(500).json({ message: error.message || 'Server error' });
   }
 });

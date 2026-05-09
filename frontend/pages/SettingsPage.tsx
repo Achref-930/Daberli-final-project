@@ -28,8 +28,9 @@ import {
   Zap,
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import FloatingActionBar from '../components/FloatingActionBar';
+import { useNavigate, Link } from 'react-router-dom';
 import { WILAYAS } from '../constants';
 import { settingsAPI } from '../services/api';
 import { User } from '../types';
@@ -49,13 +50,13 @@ const Toggle: React.FC<{ checked: boolean; onChange: (v: boolean) => void; disab
     title="Toggle setting"
     disabled={disabled}
     onClick={() => !disabled && onChange(!checked)}
-    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-      disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
-    } ${checked ? 'bg-blue-600' : 'bg-gray-200'}`}
+    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 focus:outline-none ${
+      disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer active:scale-95'
+    } ${checked ? 'bg-apple-blue' : 'bg-slate-200'}`}
   >
     <span
-      className={`inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform ${
-        checked ? 'translate-x-6' : 'translate-x-1'
+      className={`inline-block h-6 w-6 rounded-full bg-white shadow-md transform transition-transform duration-300 ease-in-out ${
+        checked ? 'translate-x-5.5' : 'translate-x-0.5'
       }`}
     />
   </button>
@@ -69,15 +70,15 @@ interface SectionProps {
   children: React.ReactNode;
 }
 const Section: React.FC<SectionProps> = ({ icon, title, subtitle, iconBg, children }) => (
-  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-    <div className="px-6 pt-6 pb-4 border-b border-gray-50 flex items-center gap-3">
-      <div className={`p-2.5 rounded-xl ${iconBg}`}>{icon}</div>
+  <div className="apple-card overflow-hidden">
+    <div className="px-6 md:px-8 pt-8 pb-4 flex items-center gap-4">
+      <div className={`p-3 rounded-2xl ${iconBg} bg-opacity-10 shrink-0`}>{icon}</div>
       <div>
-        <h2 className="text-base font-bold text-gray-900">{title}</h2>
-        <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>
+        <h2 className="text-lg font-black text-slate-900 tracking-tight">{title}</h2>
+        <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">{subtitle}</p>
       </div>
     </div>
-    <div className="divide-y divide-gray-50">{children}</div>
+    <div className="divide-y divide-slate-50">{children}</div>
   </div>
 );
 
@@ -89,15 +90,17 @@ interface RowProps {
   action: React.ReactNode;
 }
 const Row: React.FC<RowProps> = ({ icon, iconBg, label, description, action }) => (
-  <div className="flex items-center justify-between px-6 py-4 gap-4">
-    <div className="flex items-center gap-3 min-w-0">
-      {icon && <div className={`p-2 rounded-xl shrink-0 ${iconBg}`}>{icon}</div>}
+  <div className="flex items-center justify-between px-6 md:px-8 py-5 gap-4 hover:bg-slate-50 transition-colors cursor-pointer group">
+    <div className="flex items-center gap-4 min-w-0">
+      {icon && <div className={`p-2 rounded-xl shrink-0 ${iconBg} bg-opacity-10 group-hover:scale-110 transition-transform`}>{icon}</div>}
       <div className="min-w-0">
-        <p className="text-sm font-medium text-gray-800">{label}</p>
-        {description && <p className="text-xs text-gray-400 mt-0.5">{description}</p>}
+        <p className="text-[15px] font-bold text-slate-800">{label}</p>
+        {description && <p className="text-xs font-medium text-slate-400 mt-0.5">{description}</p>}
       </div>
     </div>
-    <div className="shrink-0">{action}</div>
+    <div className="shrink-0">
+      {action}
+    </div>
   </div>
 );
 
@@ -285,6 +288,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   selectedWilaya,
   onWilayaChange,
 }) => {
+  const navigate = useNavigate();
 
   // ── Account ──────────────────────────────────────────────────────────────
   const [phone, setPhone] = useState('');
@@ -432,8 +436,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           selectedWilaya={selectedWilaya}
           onWilayaChange={onWilayaChange}
           showBackButton
+          forceScrolled
         />
-        <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+        <div className="max-w-3xl mx-auto px-4 pt-28 pb-16 md:pt-32 text-center">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-red-100 text-red-600 mb-4">
             <ShieldAlert className="w-7 h-7" />
           </div>
@@ -443,6 +448,12 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
             Sign In
           </button>
         </div>
+
+        <FloatingActionBar
+          onHome={() => navigate('/')}
+          onPostAd={onPostAdClick}
+          onProfile={() => navigate('/profile')}
+        />
       </div>
     );
   }
@@ -468,7 +479,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-surface">
       <Navbar
         user={user}
         onSignIn={onSignIn}
@@ -477,14 +488,15 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
         selectedWilaya={selectedWilaya}
         onWilayaChange={onWilayaChange}
         showBackButton
+        forceScrolled
       />
-      <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
+      <div className="max-w-3xl mx-auto px-4 pt-28 pb-10 md:pt-32 space-y-6">
 
         {/* Page Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Manage your account preferences</p>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Settings</h1>
+            <p className="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">Manage your account preferences</p>
           </div>
           <Link
             to="/profile"
@@ -927,6 +939,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
         confirmLabel="Delete Forever"
         onConfirm={handleDeleteAccount}
         onCancel={() => setShowDeleteModal(false)}
+      />
+      <FloatingActionBar
+        onHome={() => navigate('/')}
+        onPostAd={onPostAdClick}
+        onProfile={() => navigate('/profile')}
       />
     </div>
   );

@@ -4,69 +4,96 @@ import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-900 text-white pt-16 pb-8">
+    <footer
+      className="text-white pt-20 pb-10"
+      style={{ backgroundColor: '#1D1D1F' }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          {/* Brand Column */}
-          <div className="col-span-1 md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="bg-white p-1 rounded">
-                 <span className="text-daberli-blue font-bold text-lg">D</span>
+        {/* Top grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+
+          {/* Brand */}
+          <div className="col-span-2 sm:col-span-2 md:col-span-1">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="bg-white/10 p-2 rounded-2xl shadow-lg">
+                <img src="/logo.svg" alt="Daberli" className="h-7 w-auto" />
               </div>
-              <span className="text-xl font-bold tracking-tight">DABERLI</span>
+              <span className="font-heading text-xl font-black tracking-tighter">DABERLI</span>
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Your trusted partner for finding services, vehicles, and homes across Algeria. Fast, secure, and local.
+            <p className="text-slate-400 text-sm leading-relaxed max-w-xs font-medium">
+              The premium marketplace for vehicles, real estate, and services across Algeria.
             </p>
-          </div>
-
-          {/* Links Column */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4 text-daberli-green">Platform</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><Link to="/about-us" className="hover:text-white transition-colors">About Us</Link></li>
-              <li><a href="#" className="hover:text-white transition-colors">How it Works</a></li>
-              <li><Link to="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link></li>
-            </ul>
-          </div>
-
-          {/* Links Column */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4 text-daberli-green">Support</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Safety Tips</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Community Guidelines</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Contact Support</a></li>
-            </ul>
-          </div>
-
-          {/* Contact Column */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4 text-daberli-green">Contact Us</h4>
-            <div className="flex flex-col space-y-3">
-              <a href="#" className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors bg-gray-800 p-2 rounded-lg hover:bg-gray-700">
-                <MessageCircle className="w-5 h-5 text-green-500" />
-                <span className="text-sm">WhatsApp Support</span>
-              </a>
-              <a href="#" className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors bg-gray-800 p-2 rounded-lg hover:bg-gray-700">
-                <Phone className="w-5 h-5 text-blue-400" />
-                <span className="text-sm">+213 550 00 00 00</span>
-              </a>
+            {/* Social */}
+            <div className="flex gap-3 mt-6">
+              {[
+                { Icon: Facebook,  href: '#', label: 'Facebook'  },
+                { Icon: Instagram, href: '#', label: 'Instagram' },
+                { Icon: Twitter,   href: '#', label: 'Twitter'   },
+              ].map(({ Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  title={label}
+                  className="w-10 h-10 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all active:scale-90"
+                >
+                  <Icon className="w-5 h-5" />
+                </a>
+              ))}
             </div>
-            <div className="flex space-x-4 mt-6">
-              <a href="#" title="Facebook" aria-label="Facebook" className="text-gray-400 hover:text-white transition-colors"><Facebook className="w-5 h-5" /></a>
-              <a href="#" title="Instagram" aria-label="Instagram" className="text-gray-400 hover:text-white transition-colors"><Instagram className="w-5 h-5" /></a>
-              <a href="#" title="Twitter" aria-label="Twitter" className="text-gray-400 hover:text-white transition-colors"><Twitter className="w-5 h-5" /></a>
+          </div>
+
+          {/* Platform links */}
+          <div>
+            <h4 className="font-heading font-black text-xs uppercase tracking-widest text-slate-500 mb-6">Platform</h4>
+            <ul className="space-y-3 text-sm text-slate-400 font-bold">
+              <li><Link to="/about" className="hover:text-apple-blue transition-colors">About Us</Link></li>
+              <li><a href="#" className="hover:text-apple-blue transition-colors">How it Works</a></li>
+              <li><Link to="/terms" className="hover:text-apple-blue transition-colors">Terms of Service</Link></li>
+              <li><a href="#" className="hover:text-apple-blue transition-colors">Privacy Policy</a></li>
+            </ul>
+          </div>
+
+          {/* Categories */}
+          <div>
+            <h4 className="font-heading font-black text-xs uppercase tracking-widest text-slate-500 mb-6">Categories</h4>
+            <ul className="space-y-3 text-sm text-slate-400 font-bold">
+              <li><Link to="/auto"        className="hover:text-apple-blue transition-colors">Vehicles</Link></li>
+              <li><Link to="/real-estate" className="hover:text-apple-blue transition-colors">Real Estate</Link></li>
+              <li><Link to="/jobs"        className="hover:text-apple-blue transition-colors">Jobs</Link></li>
+              <li><Link to="/services"    className="hover:text-apple-blue transition-colors">Services</Link></li>
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h4 className="font-heading font-black text-xs uppercase tracking-widest text-slate-500 mb-6">Contact</h4>
+            <div className="space-y-3">
+              <a
+                href="#"
+                className="flex items-center gap-3 text-sm text-slate-300 hover:text-white transition-all bg-white/5 hover:bg-white/10 px-4 py-3 rounded-2xl font-bold"
+              >
+                <MessageCircle className="w-5 h-5 text-emerald-400 shrink-0" />
+                WhatsApp Support
+              </a>
+              <a
+                href="tel:+213550000000"
+                className="flex items-center gap-3 text-sm text-slate-300 hover:text-white transition-all bg-white/5 hover:bg-white/10 px-4 py-3 rounded-2xl font-bold"
+              >
+                <Phone className="w-5 h-5 text-apple-blue shrink-0" />
+                +213 550 00 00 00
+              </a>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
-          <p>&copy; {new Date().getFullYear()} Daberli. Made for Algeria with ❤️.</p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="hover:text-white">Privacy Policy</a>
-            <a href="#" className="hover:text-white">Cookie Policy</a>
+        {/* Bottom bar */}
+        <div className="border-t border-white/5 pt-8 mt-12 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500 font-bold uppercase tracking-widest">
+          <p>© {new Date().getFullYear()} Daberli. Made for Algeria</p>
+          <div className="flex gap-8">
+            <a href="#" className="hover:text-white transition-colors">Privacy</a>
+            <a href="#" className="hover:text-white transition-colors">Terms</a>
+            <a href="#" className="hover:text-white transition-colors">Cookies</a>
           </div>
         </div>
       </div>

@@ -1,14 +1,21 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Message = require('../models/Message');
 const Ad = require('../models/Ad');
 const { protect } = require('../middleware/auth');
+
+const isValidObjectId = (value) => mongoose.Types.ObjectId.isValid(value);
 
 // @route   GET /api/messages/:adId
 // @desc    Get all messages for an ad
 // @access  Private
 router.get('/:adId', protect, async (req, res) => {
   try {
+    if (!isValidObjectId(req.params.adId)) {
+      return res.status(400).json({ message: 'Invalid adId' });
+    }
+
     const messages = await Message.find({ adId: req.params.adId })
       .sort({ createdAt: 1 })
       .populate('senderId', 'name avatar');
@@ -52,6 +59,14 @@ router.post('/', protect, async (req, res) => {
   try {
     const { adId, text } = req.body;
 
+    if (!adId || typeof text !== 'string' || !text.trim()) {
+      return res.status(400).json({ message: 'adId and text are required' });
+    }
+
+    if (!isValidObjectId(adId)) {
+      return res.status(400).json({ message: 'Invalid adId' });
+    }
+
     const ad = await Ad.findById(adId);
     if (!ad) {
       return res.status(404).json({ message: 'Ad not found' });
@@ -64,7 +79,7 @@ router.post('/', protect, async (req, res) => {
       senderId: req.user._id,
       senderName: req.user.name,
       senderRole,
-      text,
+      text: text.trim(),
     });
 
     const populated = await message.populate('senderId', 'name avatar');

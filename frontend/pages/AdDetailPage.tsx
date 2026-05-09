@@ -345,7 +345,7 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar user={user} onSignIn={onSignIn} onSignOut={onSignOut} onPostAd={onPostAdClick} selectedWilaya={selectedWilaya} onWilayaChange={onWilayaChange} showBackButton />
-        <div className="max-w-lg mx-auto px-4 py-24 text-center">
+        <div className="max-w-lg mx-auto px-4 pt-28 pb-24 md:pt-32 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 text-red-500 mb-6">
             <ShieldAlert className="w-8 h-8" />
           </div>
@@ -384,7 +384,7 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-surface">
       <Navbar
         user={user}
         onSignIn={onSignIn}
@@ -395,15 +395,15 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
         showBackButton
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8 md:pt-28">
 
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-          <Link to="/" className="hover:text-gray-900 transition-colors">Home</Link>
-          <span>/</span>
-          <Link to={`/${ad.category}`} className={`hover:text-gray-900 transition-colors capitalize`}>{theme.label}</Link>
-          <span>/</span>
-          <span className="text-gray-900 font-medium line-clamp-1">{ad.title}</span>
+        <nav className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400 mb-8">
+          <Link to="/" className="hover:text-apple-blue transition-colors">Home</Link>
+          <span className="opacity-30">/</span>
+          <Link to={`/${ad.category}`} className="hover:text-apple-blue transition-colors">{theme.label}</Link>
+          <span className="opacity-30">/</span>
+          <span className="text-slate-900 truncate max-w-50">{ad.title}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -412,10 +412,10 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
           <div className="lg:col-span-2 space-y-6">
 
             {/* Hero Gallery */}
-            <div className="space-y-2">
+            <div className="space-y-4">
               {/* Main hero image */}
               <div
-                className="relative rounded-2xl overflow-hidden aspect-video bg-gray-200 shadow-sm cursor-zoom-in group"
+                className="relative rounded-[2.5rem] overflow-hidden aspect-video bg-slate-200 shadow-2xl cursor-zoom-in group"
                 onClick={() => setLightbox(activeIdx)}
               >
                 <img
@@ -484,14 +484,14 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
 
               {/* Thumbnail filmstrip */}
               {gallery.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto pb-1">
+                <div className="flex gap-3 overflow-x-auto pb-2 px-1">
                   {gallery.map((img, i) => (
                     <button
                       key={i}
                       type="button"
                       onClick={() => setActiveIdx(i)}
-                      className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all
-                        ${i === activeIdx ? 'border-blue-500 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-90 hover:border-gray-300'}`}
+                      className={`shrink-0 w-20 h-20 rounded-2xl overflow-hidden border-4 transition-all duration-300
+                        ${i === activeIdx ? 'border-apple-blue scale-105 shadow-xl' : 'border-transparent opacity-50 hover:opacity-100'}`}
                       aria-label={`View photo ${i + 1}`}
                     >
                       <img src={img} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
@@ -502,15 +502,15 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
             </div>
 
             {/* Title + meta */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <div className="flex items-start gap-3 justify-between flex-wrap">
-                <h1 className="text-2xl font-bold text-gray-900 leading-tight">{ad.title}</h1>
-                <span className="text-xs text-gray-400 flex items-center gap-1 shrink-0 mt-1">
-                  <Clock className="w-3.5 h-3.5" /> {ad.datePosted}
+            <div className="apple-card p-8">
+              <div className="flex items-start gap-4 justify-between flex-wrap">
+                <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tighter leading-tight">{ad.title}</h1>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 shrink-0 mt-2 bg-slate-50 px-3 py-1 rounded-full">
+                  <Clock className="w-3 h-3" /> {ad.datePosted}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 mt-2 text-gray-500 text-sm">
-                <MapPin className="w-4 h-4" /> {ad.location}
+              <div className="flex items-center gap-2 mt-4 text-slate-500 text-sm font-bold">
+                <MapPin className="w-4 h-4 text-apple-blue" /> {ad.location}
               </div>
 
               {/* Category-specific stats */}
@@ -529,8 +529,8 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
             </div>
 
             {/* Category-specific detail chips */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <h2 className="text-base font-bold text-gray-900 mb-4">Details</h2>
+            <div className="apple-card p-8">
+              <h2 className="text-xl font-black text-slate-900 mb-6 tracking-tight">Details</h2>
               {ad.category === 'auto' && <AutoDetails details={ad.details} />}
               {ad.category === 'real-estate' && <RealEstateDetails details={ad.details} />}
               {ad.category === 'jobs' && <JobDetails details={ad.details} />}
@@ -549,9 +549,9 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
             </div>
 
             {/* Description placeholder */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <h2 className="text-base font-bold text-gray-900 mb-3">About this listing</h2>
-              <p className="text-sm text-gray-600 leading-relaxed">
+            <div className="apple-card p-8">
+              <h2 className="text-xl font-black text-slate-900 mb-4 tracking-tight">Description</h2>
+              <p className="text-[15px] text-slate-600 leading-relaxed font-medium">
                 {ad.details?.description as string ||
                   `This is a ${theme.label.toLowerCase()} listing in ${ad.location}. ` +
                   (isJob
@@ -581,14 +581,15 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
           <div className="space-y-5">
 
             {/* Price card */}
-            <div className={`bg-white rounded-2xl border ${theme.border} p-6 shadow-sm`}>
-              <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">
-                {isJob ? 'Salary' : 'Price'}
+            <div className="apple-card p-8 overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-apple-blue/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                {isJob ? 'Estimated Salary' : 'Asking Price'}
               </p>
-              <p className="text-3xl font-extrabold text-gray-900">
+              <p className="text-4xl font-black text-slate-900 tracking-tighter">
                 {ad.price > 0 ? ad.price.toLocaleString() : 'Negotiable'}
               </p>
-              {ad.price > 0 && <p className="text-sm text-gray-500 mt-0.5">{ad.currency}</p>}
+              {ad.price > 0 && <p className="text-sm font-black text-apple-blue mt-1">{ad.currency}</p>}
             </div>
 
             {/* Seller / Poster info */}
@@ -619,9 +620,11 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
             </div>
 
             {/* Contact / Apply form */}
-            <div className={`bg-white rounded-2xl border ${theme.border} p-5 shadow-sm`}>
-              <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-                {isJob ? <Briefcase className={`w-4 h-4 ${theme.text}`} /> : <Phone className={`w-4 h-4 ${theme.text}`} />}
+            <div className="apple-card p-8">
+              <h2 className="text-xl font-black text-slate-900 mb-6 tracking-tight flex items-center gap-3">
+                <div className={`p-2 rounded-xl ${theme.bgLight} ${theme.text}`}>
+                  {isJob ? <Briefcase className="w-5 h-5" /> : <Phone className="w-5 h-5" />}
+                </div>
                 {theme.formLabel}
               </h2>
 
@@ -650,7 +653,7 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
                   <p className="text-sm text-gray-600">Sign in to {isJob ? 'apply for this job' : 'contact the seller'}.</p>
                   <button
                     onClick={onSignIn}
-                    className={`w-full py-2.5 rounded-xl text-white font-semibold text-sm transition-colors ${theme.button}`}
+                    className="apple-button w-full py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest bg-apple-blue shadow-lg shadow-apple-blue/20"
                   >
                     Sign In to {theme.ctaLabel}
                   </button>
@@ -685,9 +688,9 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
                   <button
                     type="submit"
                     disabled={!message.trim()}
-                    className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-white font-semibold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${theme.button}`}
+                    className="apple-button w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest bg-apple-blue shadow-lg shadow-apple-blue/20 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Send className="w-4 h-4" />
+                    <Send className="w-5 h-5" />
                     {theme.ctaLabel}
                   </button>
                   <p className="text-xs text-gray-400 text-center">

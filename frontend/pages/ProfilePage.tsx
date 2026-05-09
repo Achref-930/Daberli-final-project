@@ -14,8 +14,9 @@ import {
   Zap
 } from 'lucide-react';
 import React, { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import FloatingActionBar from '../components/FloatingActionBar';
 import { handleImgError } from '../constants';
 import { authAPI } from '../services/api';
 import { Ad, User } from '../types';
@@ -112,6 +113,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [draftName, setDraftName] = useState('');
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -138,8 +140,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
           selectedWilaya={selectedWilaya}
           onWilayaChange={onWilayaChange}
           showBackButton
+          forceScrolled
         />
-        <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+        <div className="max-w-3xl mx-auto px-4 pt-28 pb-16 md:pt-32 text-center">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-red-100 text-red-600 mb-4">
             <ShieldAlert className="w-7 h-7" />
           </div>
@@ -152,6 +155,11 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
             Sign In
           </button>
         </div>
+        <FloatingActionBar
+          onHome={() => navigate('/')}
+          onPostAd={onPostAdClick}
+          onProfile={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        />
       </div>
     );
   }
@@ -180,18 +188,27 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
 
   const cancelEditing = () => setIsEditing(false);
 
-  const saveEditing = () => {
+  const saveEditing = async () => {
     const trimmed = draftName.trim();
-    if (!trimmed) return;
-    onUpdateUser({ name: trimmed });
-    setIsEditing(false);
+    if (!trimmed || !user) return;
+    try {
+      // Optimistically update UI
+      onUpdateUser({ name: trimmed });
+      setIsEditing(false);
+      // Make API call
+      await authAPI.updateProfile({ name: trimmed });
+    } catch (err) {
+      console.error('Failed to update name:', err);
+      // Revert on error
+      onUpdateUser({ name: user.name });
+    }
   };
 
   // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-surface">
       <Navbar
         user={user}
         onSignIn={onSignIn}
@@ -200,21 +217,22 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         selectedWilaya={selectedWilaya}
         onWilayaChange={onWilayaChange}
         showBackButton
+        forceScrolled
       />
 
-      <div className="max-w-4xl mx-auto px-4 py-10 space-y-8">
+      <div className="max-w-4xl mx-auto px-4 pt-24 pb-20 md:pt-32 space-y-8">
 
         {/* ------------------------------------------------------------------ */}
         {/* Profile Header                                                       */}
         {/* ------------------------------------------------------------------ */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="apple-card p-8 md:p-10">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             {/* Avatar */}
             <div className="relative shrink-0 group">
               <img
                 src={user.avatar}
                 alt={user.name}
-                className="w-24 h-24 rounded-full object-cover ring-4 ring-blue-50"
+                className="w-28 h-28 rounded-full object-cover ring-4 ring-apple-blue/10 shadow-xl"
                 onError={handleImgError}
               />
               {/* Online indicator */}
@@ -306,50 +324,121 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                 <span className="text-sm font-semibold text-gray-700">
                   {avgRating.toFixed(1)}
                 </span>
-                <span className="text-sm text-gray-400">
-                  ({userReviews.length} review{userReviews.length !== 1 ? 's' : ''})
+                <span className="text-sm text-slate-400 font-bold ml-1">
+                  ({approvedCount} listings)
                 </span>
+                {user.isAdmin && (
+                  <div className="flex items-center gap-1.5 text-apple-blue font-black ml-4 bg-apple-blue/5 px-3 py-1 rounded-full">
+                    <ShieldAlert className="w-4 h-4" />
+                    <span className="text-xs uppercase tracking-widest">Administrator</span>
+                  </div>
+                )}
               </div>
-            </div>
 
-            {/* Edit Profile button (visible on sm+) */}
-            {!isEditing && (
-              <button
-                onClick={startEditing}
-                className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 text-sm font-medium text-gray-700 hover:border-blue-400 hover:text-blue-600 transition-colors"
-              >
-                <Edit3 className="w-4 h-4" />
-                Edit Profile
-              </button>
+              {!isEditing && (
+                <button
+                  onClick={startEditing}
+                  className="mt-6 flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-apple-blue transition-colors px-4 py-2 bg-slate-50 hover:bg-apple-blue/5 rounded-2xl active:scale-95"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  Edit Profile
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Stats Bar */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 pt-10 border-t border-slate-100">
+            {[
+              { label: 'Active Ads', count: approvedCount, icon: CheckCircle, color: 'text-emerald-500' },
+              { label: 'Avg Rating', count: avgRating.toFixed(1), icon: Star, color: 'text-amber-400' },
+              { label: 'Messages', count: '12', icon: Mail, color: 'text-apple-blue' },
+              { label: 'Total Views', count: '1.2k', icon: Eye, color: 'text-slate-400' },
+            ].map((stat, i) => (
+              <div key={i} className="text-center sm:text-left space-y-1 px-4">
+                <div className="flex items-center justify-center sm:justify-start gap-2">
+                  <stat.icon className={`w-4 h-4 ${stat.color}`} />
+                  <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{stat.label}</span>
+                </div>
+                <p className="text-2xl font-black text-slate-900">{stat.count}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ------------------------------------------------------------------ */}
+        {/* Navigation Tabs (Simulated)                                        */}
+        {/* ------------------------------------------------------------------ */}
+        <div className="flex items-center gap-2 p-1.5 bg-white/50 backdrop-blur-md rounded-4xl border border-slate-100 shadow-sm overflow-x-auto">
+          {[
+            { label: 'My Listings', to: '/my-ads', active: true },
+            { label: 'Messages',   to: '/messages' },
+            { label: 'Saved',      to: '#' },
+            { label: 'Settings',   to: '/settings' },
+          ].map((tab) => (
+            <Link
+              key={tab.label}
+              to={tab.to}
+              className={`px-6 py-3 rounded-3xl text-sm font-bold transition-all whitespace-nowrap active:scale-95 ${
+                tab.active 
+                  ? 'bg-apple-blue text-white shadow-md shadow-apple-blue/20' 
+                  : 'text-slate-600 hover:bg-white'
+              }`}
+            >
+              {tab.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* ------------------------------------------------------------------ */}
+        {/* Listings Preview                                                   */}
+        {/* ------------------------------------------------------------------ */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight px-2">Recent Listings</h2>
+            <Link to="/my-ads" className="text-sm font-bold text-apple-blue hover:underline px-2">Manage All</Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {myAds.length > 0 ? (
+              myAds.slice(0, 4).map((ad) => (
+                <div key={ad.id} className="apple-card p-4 flex gap-4 items-center">
+                  <img src={ad.image} alt={ad.title} className="w-20 h-20 rounded-2xl object-cover shrink-0" onError={handleImgError} />
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-bold text-slate-900 truncate mb-1">{ad.title}</h4>
+                    <p className="text-xs font-black text-apple-blue mb-2">{ad.price.toLocaleString()} {ad.currency}</p>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] font-black uppercase tracking-tighter px-2.5 py-1 rounded-full ${
+                        ad.approvalStatus === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                      }`}>
+                        {ad.approvalStatus}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-slate-300" />
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full apple-card p-12 text-center space-y-4">
+                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto">
+                  <Zap className="w-8 h-8 text-slate-300" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900">No listings yet</p>
+                  <p className="text-sm text-slate-400 mt-1">Start selling by posting your first ad.</p>
+                </div>
+                <button onClick={onPostAdClick} className="apple-button px-8 py-3 bg-apple-blue text-white font-bold shadow-lg shadow-apple-blue/20">
+                  Post Your First Ad
+                </button>
+              </div>
             )}
           </div>
         </div>
 
         {/* ------------------------------------------------------------------ */}
-        {/* Stats                                                                */}
-        {/* ------------------------------------------------------------------ */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[
-            { label: 'Total Listings', value: myAds.length, color: 'text-blue-600', bg: 'bg-blue-50', icon: <UserIcon className="w-5 h-5" /> },
-            { label: 'Approved', value: approvedCount, color: 'text-emerald-600', bg: 'bg-emerald-50', icon: <CheckCircle className="w-5 h-5" /> },
-            { label: 'Pending', value: pendingCount, color: 'text-amber-600', bg: 'bg-amber-50', icon: <Eye className="w-5 h-5" /> },
-            { label: 'Rejected', value: rejectedCount, color: 'text-red-600', bg: 'bg-red-50', icon: <X className="w-5 h-5" /> }
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col items-center text-center gap-2"
-            >
-              <div className={`${stat.bg} ${stat.color} p-2 rounded-xl`}>{stat.icon}</div>
-              <span className={`text-3xl font-bold ${stat.color}`}>{stat.value}</span>
-              <span className="text-xs font-medium text-gray-500">{stat.label}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* ------------------------------------------------------------------ */}
         {/* Reviews                                                              */}
         {/* ------------------------------------------------------------------ */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-bold text-gray-900">Reviews</h2>
@@ -423,6 +512,11 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         </Link>
 
       </div>
+      <FloatingActionBar
+        onHome={() => navigate('/')}
+        onPostAd={onPostAdClick}
+        onProfile={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      />
     </div>
   );
 };

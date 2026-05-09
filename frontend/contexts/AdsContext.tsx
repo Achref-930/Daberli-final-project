@@ -12,6 +12,8 @@ interface AdsContextType {
   handlePostAdSubmit: (adData: any, imageFiles?: File[]) => Promise<void>;
   handleApproveAd: (adId: string) => Promise<void>;
   handleRejectAd: (adId: string) => Promise<void>;
+  handleBoostAd: (adId: string) => Promise<void>;
+  handleUnboostAd: (adId: string) => Promise<void>;
 }
 
 const AdsContext = createContext<AdsContextType | undefined>(undefined);
@@ -27,7 +29,11 @@ export const AdsProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setError(null);
     try {
       const data = await adsAPI.getAll({ userId: user?.id });
-      setAds(data.ads || []); // Ensure ads is always an array
+      const normalizedAds: Ad[] = (data.ads || [])
+        .map((ad: any) => ({ ...ad, id: ad.id || ad._id || '' }))
+        .filter((ad: Ad) => Boolean(ad.id));
+
+      setAds(normalizedAds);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch ads');
       console.error('Failed to fetch ads:', err);
@@ -45,7 +51,16 @@ export const AdsProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     try {
       const newAd = await adsAPI.create(adData, imageFiles);
-      setAds((prevAds) => [newAd, ...prevAds]);
+      const normalizedNewAd: Ad = {
+        ...newAd,
+        id: newAd.id || newAd._id || '',
+      };
+
+      if (!normalizedNewAd.id) {
+        throw new Error('Created ad is missing an id.');
+      }
+
+      setAds((prevAds) => [normalizedNewAd, ...prevAds]);
     } catch (error) {
       console.error('Failed to post ad:', error);
       throw error;
@@ -78,6 +93,32 @@ export const AdsProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const handleBoostAd = async (adId: string) => {
+    try {
+      await adsAPI.boost(adId);
+      setAds((prevAds) =>
+        prevAds.map((ad) =>
+          ad.id === adId || ad._id === adId ? { ...ad, isBoosted: true } : ad
+        )
+      );
+    } catch (error) {
+      console.error('Failed to boost ad:', error);
+    }
+  };
+
+  const handleUnboostAd = async (adId: string) => {
+    try {
+      await adsAPI.unboost(adId);
+      setAds((prevAds) =>
+        prevAds.map((ad) =>
+          ad.id === adId || ad._id === adId ? { ...ad, isBoosted: false } : ad
+        )
+      );
+    } catch (error) {
+      console.error('Failed to unboost ad:', error);
+    }
+  };
+
   const visibleAds = useMemo(() => {
     return ads.filter((ad) => {
       if (ad.approvalStatus === 'approved') return true;
@@ -97,6 +138,8 @@ export const AdsProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     handlePostAdSubmit,
     handleApproveAd,
     handleRejectAd,
+    handleBoostAd,
+    handleUnboostAd,
   };
 
   return <AdsContext.Provider value={value}>{children}</AdsContext.Provider>;

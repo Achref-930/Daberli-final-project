@@ -43,6 +43,7 @@ interface PostAdModalProps {
 
 export interface PostAdFormData {
   title: string;
+  description: string;
   category: 'auto' | 'real-estate' | 'jobs' | 'services';
   price: number;
   currency: string;
@@ -82,9 +83,19 @@ const CATEGORY_CONFIG = {
     bg: 'bg-red-50',
     text: 'text-red-600',
     ring: 'ring-red-400',
+    focusRing: 'focus:ring-red-400/20',
+    focusText: 'group-focus-within:text-red-600',
+    focusIcon: 'group-focus-within:text-red-600',
+    borderSoft: 'border-red-200',
+    hoverBorderSoft: 'hover:border-red-200',
+    hoverText: 'hover:text-red-600',
+    hoverBg: 'hover:bg-red-50',
     btn: 'bg-red-600 hover:bg-red-700',
+    btnShadow: 'shadow-red-200',
     badge: 'bg-red-100 text-red-700',
+    badgeBorder: 'border-red-200',
     bar: 'bg-red-500',
+    barShadow: 'shadow-red-200',
   },
   'real-estate': {
     label: 'Real Estate',
@@ -95,9 +106,19 @@ const CATEGORY_CONFIG = {
     bg: 'bg-emerald-50',
     text: 'text-emerald-600',
     ring: 'ring-emerald-400',
+    focusRing: 'focus:ring-emerald-400/20',
+    focusText: 'group-focus-within:text-emerald-600',
+    focusIcon: 'group-focus-within:text-emerald-600',
+    borderSoft: 'border-emerald-200',
+    hoverBorderSoft: 'hover:border-emerald-200',
+    hoverText: 'hover:text-emerald-600',
+    hoverBg: 'hover:bg-emerald-50',
     btn: 'bg-emerald-600 hover:bg-emerald-700',
+    btnShadow: 'shadow-emerald-200',
     badge: 'bg-emerald-100 text-emerald-700',
+    badgeBorder: 'border-emerald-200',
     bar: 'bg-emerald-500',
+    barShadow: 'shadow-emerald-200',
   },
   jobs: {
     label: 'Jobs',
@@ -108,9 +129,19 @@ const CATEGORY_CONFIG = {
     bg: 'bg-blue-50',
     text: 'text-blue-600',
     ring: 'ring-blue-400',
+    focusRing: 'focus:ring-blue-400/20',
+    focusText: 'group-focus-within:text-blue-600',
+    focusIcon: 'group-focus-within:text-blue-600',
+    borderSoft: 'border-blue-200',
+    hoverBorderSoft: 'hover:border-blue-200',
+    hoverText: 'hover:text-blue-600',
+    hoverBg: 'hover:bg-blue-50',
     btn: 'bg-blue-600 hover:bg-blue-700',
+    btnShadow: 'shadow-blue-200',
     badge: 'bg-blue-100 text-blue-700',
+    badgeBorder: 'border-blue-200',
     bar: 'bg-blue-500',
+    barShadow: 'shadow-blue-200',
   },
   services: {
     label: 'Services',
@@ -121,40 +152,59 @@ const CATEGORY_CONFIG = {
     bg: 'bg-violet-50',
     text: 'text-violet-600',
     ring: 'ring-violet-400',
+    focusRing: 'focus:ring-violet-400/20',
+    focusText: 'group-focus-within:text-violet-600',
+    focusIcon: 'group-focus-within:text-violet-600',
+    borderSoft: 'border-violet-200',
+    hoverBorderSoft: 'hover:border-violet-200',
+    hoverText: 'hover:text-violet-600',
+    hoverBg: 'hover:bg-violet-50',
     btn: 'bg-violet-600 hover:bg-violet-700',
+    btnShadow: 'shadow-violet-200',
     badge: 'bg-violet-100 text-violet-700',
+    badgeBorder: 'border-violet-200',
     bar: 'bg-violet-500',
+    barShadow: 'shadow-violet-200',
   },
 } as const;
 
+const CATEGORY_ENTRIES = Object.entries(CATEGORY_CONFIG) as [
+  Category,
+  typeof CATEGORY_CONFIG[Category]
+][];
+
 // ─── Small reusable pieces ────────────────────────────────────────────────────
+
+type AccentConfig = typeof CATEGORY_CONFIG[Category];
 
 const FieldWrapper: React.FC<{
   label: string;
   icon?: React.ReactNode;
   children: React.ReactNode;
   hint?: string;
-}> = ({ label, icon, children, hint }) => (
-  <div>
-    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>
+  accent?: AccentConfig;
+}> = ({ label, icon, children, hint, accent }) => (
+  <div className="group">
+    <label className={`block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-4 transition-colors ${accent?.focusText ?? 'group-focus-within:text-apple-blue'}`}>{label}</label>
     <div className="relative">
       {icon && (
-        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+        <span className={`absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-300 transition-colors ${accent?.focusIcon ?? 'group-focus-within:text-apple-blue'}`}>
           {icon}
         </span>
       )}
       {children}
     </div>
-    {hint && <p className="mt-1 text-xs text-gray-400">{hint}</p>}
+    {hint && <p className="mt-2 text-[10px] font-bold text-slate-400 ml-4 uppercase tracking-wider">{hint}</p>}
   </div>
 );
 
-const inputCls = (hasIcon = true) =>
-  `block w-full ${hasIcon ? 'pl-10' : 'px-3'} pr-3 py-2.5 border border-gray-200 rounded-xl
-   text-gray-900 placeholder-gray-400 text-sm bg-white
-   focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-all`;
+const inputCls = (accent: AccentConfig, hasIcon = true) =>
+  `block w-full ${hasIcon ? 'pl-12' : 'px-5'} pr-5 py-4 bg-slate-50 border-none rounded-2xl
+   text-slate-900 placeholder-slate-300 text-sm font-bold
+   focus:outline-none focus:ring-8 ${accent.focusRing} focus:bg-white transition-colors duration-150`;
 
-const selectCls = (hasIcon = true) => `${inputCls(hasIcon)} appearance-none cursor-pointer`;
+const selectCls = (accent: AccentConfig, hasIcon = true) =>
+  `${inputCls(accent, hasIcon)} appearance-none cursor-pointer`;
 
 const DownIcon = () => (
   <span className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
@@ -164,34 +214,47 @@ const DownIcon = () => (
 
 // ─── Step 1 — Category Picker ─────────────────────────────────────────────────
 
-const StepCategory: React.FC<{
+type StepCategoryProps = {
   selected: Category;
   onSelect: (c: Category) => void;
-}> = ({ selected, onSelect }) => (
+};
+
+const StepCategory = React.memo(({ selected, onSelect }: StepCategoryProps) => (
   <div className="space-y-3">
     <p className="text-sm text-gray-500 mb-1">What are you listing?</p>
-    <div className="grid grid-cols-2 gap-3">
-      {(Object.entries(CATEGORY_CONFIG) as [Category, typeof CATEGORY_CONFIG[Category]][]).map(([cat, cfg]) => {
+    <div className="grid grid-cols-2 gap-4">
+      {CATEGORY_ENTRIES.map(([cat, cfg]) => {
         const active = selected === cat;
         return (
           <button
             key={cat}
             type="button"
             onClick={() => onSelect(cat)}
-            className={`flex flex-col items-start gap-3 p-4 rounded-2xl border-2 text-left transition-all duration-200 focus:outline-none focus-visible:ring-2 ${cfg.ring}
-              ${active ? `${cfg.border} ${cfg.bg} ring-2 ${cfg.ring} ring-offset-1` : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'}`}
+            className={`apple-card flex flex-col items-center text-center gap-4 p-6 transition-colors transition-shadow transition-transform duration-150 active:scale-95
+              ${active
+                ? `ring-2 ${cfg.ring} ring-opacity-20 ${cfg.bg} shadow-lg -translate-y-1`
+                : `${cfg.bg} hover:shadow-md`}
+            `}
           >
-            <span className={active ? cfg.text : 'text-gray-400'}>{cfg.icon}</span>
-            <span>
-              <p className={`font-bold text-sm ${active ? cfg.text : 'text-gray-800'}`}>{cfg.label}</p>
-              <p className="text-xs text-gray-400 mt-0.5 leading-snug">{cfg.subtitle}</p>
-            </span>
+            <div
+              className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-colors duration-150 ${
+                active ? `${cfg.btn} text-white shadow-lg` : `bg-white/80 ${cfg.text}`
+              }`}
+            >
+              {cfg.icon}
+            </div>
+            <div>
+              <p className={`font-black text-xs uppercase tracking-widest ${cfg.text}`}>{cfg.label}</p>
+              <p className={`text-[10px] mt-1.5 font-bold leading-tight ${cfg.text} opacity-70`}>{cfg.subtitle}</p>
+            </div>
           </button>
         );
       })}
     </div>
   </div>
-);
+));
+
+StepCategory.displayName = 'StepCategory';
 
 // ─── Step 2 — Basic Info ──────────────────────────────────────────────────────
 
@@ -216,12 +279,12 @@ const StepBasic: React.FC<{
   return (
     <div className="space-y-4">
       {/* Category badge */}
-      <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${cfg.badge}`}>
+      <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border ${cfg.badge} ${cfg.badgeBorder}`}>
         {cfg.iconSm}{cfg.label}
       </div>
 
       {/* Title */}
-      <FieldWrapper label="Ad Title *" icon={<Type className="w-4 h-4" />}>
+      <FieldWrapper accent={cfg} label="Ad Title *" icon={<Type className="w-4 h-4" />}>
         <input
           autoFocus
           type="text"
@@ -230,13 +293,13 @@ const StepBasic: React.FC<{
           value={data.title}
           onChange={onChange}
           placeholder={placeholder}
-          className={inputCls()}
+          className={inputCls(cfg)}
         />
       </FieldWrapper>
 
       {/* Wilaya */}
-      <FieldWrapper label="Wilaya *" icon={<MapPin className="w-4 h-4" />}>
-        <select name="location" required value={data.location} onChange={onChange} className={selectCls()}>
+      <FieldWrapper accent={cfg} label="Wilaya *" icon={<MapPin className="w-4 h-4" />}>
+        <select name="location" required value={data.location} onChange={onChange} className={selectCls(cfg)}>
           <option value="">Choose wilaya</option>
           {WILAYAS.map((w) => (
             <option key={w.code} value={w.name}>{w.code} — {w.name}</option>
@@ -247,7 +310,7 @@ const StepBasic: React.FC<{
 
       {/* Price + unit */}
       <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label="Price (DZD)" icon={<DollarSign className="w-4 h-4" />}>
+        <FieldWrapper accent={cfg} label="Price (DZD)" icon={<DollarSign className="w-4 h-4" />}>
           <input
             type="number"
             name="price"
@@ -255,11 +318,11 @@ const StepBasic: React.FC<{
             value={data.price}
             onChange={onChange}
             placeholder="0"
-            className={inputCls()}
+            className={inputCls(cfg)}
           />
         </FieldWrapper>
-        <FieldWrapper label="Pricing type">
-          <select name="priceUnit" value={data.priceUnit} onChange={onChange} className={selectCls(false)}>
+        <FieldWrapper accent={cfg} label="Pricing type">
+          <select name="priceUnit" value={data.priceUnit} onChange={onChange} className={selectCls(cfg, false)}>
             <option value="DZD">DZD — Fixed</option>
             <option value="Negotiable">Negotiable</option>
             <option value="DZD/month">DZD / month</option>
@@ -279,45 +342,46 @@ const StepAutoDetails: React.FC<{
   d: AutoDetails;
   set: (k: keyof AutoDetails, v: string) => void;
 }> = ({ d, set }) => {
+  const cfg = CATEGORY_CONFIG.auto;
   const ch = (k: keyof AutoDetails) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => set(k, e.target.value);
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label="Brand" icon={<Car className="w-4 h-4" />}>
-          <select value={d.brand} onChange={ch('brand')} className={selectCls()}>
+        <FieldWrapper accent={cfg} label="Brand" icon={<Car className="w-4 h-4" />}>
+          <select value={d.brand} onChange={ch('brand')} className={selectCls(cfg)}>
             <option value="">Select brand</option>
             {['Renault','Peugeot','Citroën','Volkswagen','Toyota','Hyundai','Kia','Dacia','BMW','Mercedes-Benz','Audi','Ford','Fiat','Opel','Seat','Skoda','Suzuki','Nissan','Honda','Mitsubishi','Mazda','Other'].map(b => <option key={b}>{b}</option>)}
           </select>
           <DownIcon />
         </FieldWrapper>
-        <FieldWrapper label="Model" icon={<Tag className="w-4 h-4" />}>
-          <input value={d.model} onChange={ch('model')} placeholder="e.g., Clio 4" className={inputCls()} />
+        <FieldWrapper accent={cfg} label="Model" icon={<Tag className="w-4 h-4" />}>
+          <input value={d.model} onChange={ch('model')} placeholder="e.g., Clio 4" className={inputCls(cfg)} />
         </FieldWrapper>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label="Year" icon={<Calendar className="w-4 h-4" />}>
-          <select value={d.year} onChange={ch('year')} className={selectCls()}>
+        <FieldWrapper accent={cfg} label="Year" icon={<Calendar className="w-4 h-4" />}>
+          <select value={d.year} onChange={ch('year')} className={selectCls(cfg)}>
             <option value="">Year</option>
             {Array.from({ length: 37 }, (_, i) => 2026 - i).map(y => <option key={y}>{y}</option>)}
           </select>
           <DownIcon />
         </FieldWrapper>
-        <FieldWrapper label="Mileage (km)" icon={<Gauge className="w-4 h-4" />}>
-          <input type="number" min="0" value={d.mileage} onChange={ch('mileage')} placeholder="e.g., 45 000" className={inputCls()} />
+        <FieldWrapper accent={cfg} label="Mileage (km)" icon={<Gauge className="w-4 h-4" />}>
+          <input type="number" min="0" value={d.mileage} onChange={ch('mileage')} placeholder="e.g., 45 000" className={inputCls(cfg)} />
         </FieldWrapper>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label="Fuel type" icon={<Fuel className="w-4 h-4" />}>
-          <select value={d.fuelType} onChange={ch('fuelType')} className={selectCls()}>
+        <FieldWrapper accent={cfg} label="Fuel type" icon={<Fuel className="w-4 h-4" />}>
+          <select value={d.fuelType} onChange={ch('fuelType')} className={selectCls(cfg)}>
             <option value="">Select</option>
             {['Essence','Gasoil','GPL','Électrique','Hybride'].map(f => <option key={f}>{f}</option>)}
           </select>
           <DownIcon />
         </FieldWrapper>
-        <FieldWrapper label="Transmission" icon={<Zap className="w-4 h-4" />}>
-          <select value={d.transmission} onChange={ch('transmission')} className={selectCls()}>
+        <FieldWrapper accent={cfg} label="Transmission" icon={<Zap className="w-4 h-4" />}>
+          <select value={d.transmission} onChange={ch('transmission')} className={selectCls(cfg)}>
             <option value="">Select</option>
             <option>Manual</option>
             <option>Automatic</option>
@@ -327,11 +391,11 @@ const StepAutoDetails: React.FC<{
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label="Color" icon={<Palette className="w-4 h-4" />}>
-          <input value={d.color} onChange={ch('color')} placeholder="e.g., White" className={inputCls()} />
+        <FieldWrapper accent={cfg} label="Color" icon={<Palette className="w-4 h-4" />}>
+          <input value={d.color} onChange={ch('color')} placeholder="e.g., White" className={inputCls(cfg)} />
         </FieldWrapper>
-        <FieldWrapper label="Condition" icon={<CheckCircle className="w-4 h-4" />}>
-          <select value={d.condition} onChange={ch('condition')} className={selectCls()}>
+        <FieldWrapper accent={cfg} label="Condition" icon={<CheckCircle className="w-4 h-4" />}>
+          <select value={d.condition} onChange={ch('condition')} className={selectCls(cfg)}>
             <option value="">Select</option>
             {['Neuf','Excellent état','Bon état','État correct','À réviser'].map(c => <option key={c}>{c}</option>)}
           </select>
@@ -732,13 +796,15 @@ const StepPhoto: React.FC<{
   return (
     <div className="space-y-5">
       {/* Mini summary */}
-      <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center gap-3">
-        <span className={`p-2 rounded-lg ${cfg.bg} ${cfg.text}`}>{cfg.iconSm}</span>
+      <div className="apple-card bg-slate-50 border-none p-4 flex items-center gap-4">
+        <div className="w-12 h-12 rounded-xl bg-apple-blue/10 flex items-center justify-center text-apple-blue shadow-inner">
+          {cfg.iconSm}
+        </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-gray-900 truncate">
+          <p className="text-xs font-black text-slate-900 uppercase tracking-widest truncate">
             {base.title || 'Untitled Ad'}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mt-1">
             {base.location || 'No wilaya'} ·{' '}
             {base.price ? `${Number(base.price).toLocaleString()} ${base.priceUnit}` : 'No price'}
           </p>
@@ -747,12 +813,12 @@ const StepPhoto: React.FC<{
 
       {/* Photos — Hero + Filmstrip layout */}
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700">
-            <ImageIcon className="w-4 h-4" />
+        <div className="flex items-center justify-between mb-4">
+          <label className="flex items-center gap-2 text-[11px] font-black text-slate-400 uppercase tracking-widest ml-4">
+            <ImageIcon className="w-4 h-4 text-apple-blue" />
             Photos <span className="text-red-400">*</span>
           </label>
-          <span className="text-xs text-gray-400 font-medium">{base.images.length} / {MAX_IMAGES}</span>
+          <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest mr-4">{base.images.length} / {MAX_IMAGES}</span>
         </div>
 
         {base.images.length > 0 ? (
@@ -811,9 +877,9 @@ const StepPhoto: React.FC<{
                     onDragLeave={handleDragLeave}
                     onDrop={handleReorderDrop(idx)}
                     onDragEnd={handleDragEnd}
-                    className={`relative shrink-0 w-20 aspect-square rounded-lg overflow-hidden bg-gray-100 group cursor-grab active:cursor-grabbing transition-all duration-200
+                    className={`relative shrink-0 w-24 aspect-square rounded-2xl overflow-hidden bg-slate-100 group cursor-grab active:cursor-grabbing transition-all duration-300
                       ${isDragging ? 'opacity-50 scale-95' : ''}
-                      ${isDropTarget ? 'ring-2 ring-blue-400 ring-offset-2' : ''}`}
+                      ${isDropTarget ? 'ring-4 ring-apple-blue/20 ring-offset-2' : ''}`}
                     onClick={() => setLightbox(idx)}
                   >
                     <img
@@ -847,31 +913,13 @@ const StepPhoto: React.FC<{
               {loadingCount > 0 && Array.from({ length: loadingCount }).map((_, li) => (
                 <div
                   key={`loading-${li}`}
-                  className="shrink-0 w-20 aspect-square rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50"
+                  className="shrink-0 w-24 aspect-square rounded-2xl border-4 border-dashed border-slate-100 flex items-center justify-center bg-slate-50"
                 >
                   <div className="relative w-8 h-8">
                     <svg className="animate-spin" viewBox="0 0 36 36">
-                      <circle
-                        className="text-gray-200"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="none"
-                        cx="18"
-                        cy="18"
-                        r="14"
-                      />
-                      <circle
-                        className="text-blue-500"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="none"
-                        cx="18"
-                        cy="18"
-                        r="14"
-                        strokeDasharray="88"
-                        strokeDashoffset="66"
-                        strokeLinecap="round"
-                      />
+                      <circle className="text-slate-100" stroke="currentColor" strokeWidth="4" fill="none" cx="18" cy="18" r="14" />
+                      <circle className="text-apple-blue" stroke="currentColor" strokeWidth="4" fill="none" cx="18" cy="18" r="14"
+                        strokeDasharray="88" strokeDashoffset="66" strokeLinecap="round" />
                     </svg>
                   </div>
                 </div>
@@ -884,41 +932,40 @@ const StepPhoto: React.FC<{
                   onDragLeave={() => setDragOver(false)}
                   onDrop={(e) => { e.preventDefault(); setDragOver(false); processFiles(e.dataTransfer.files); }}
                   onClick={() => fileRef.current?.click()}
-                  className={`shrink-0 w-20 aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1 cursor-pointer select-none transition-colors
-                    ${dragOver ? 'border-blue-400 bg-blue-50 text-blue-500' : 'border-gray-300 text-gray-400 hover:border-blue-400 hover:text-blue-500'}`}
+                  className={`shrink-0 w-24 aspect-square rounded-2xl border-4 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer select-none transition-all
+                    ${dragOver ? 'border-apple-blue bg-apple-blue/5 text-apple-blue' : 'border-slate-100 text-slate-300 hover:border-apple-blue/30 hover:text-apple-blue hover:bg-slate-50'}`}
                 >
-                  <ImageIcon className="w-4 h-4" />
-                  <span className="text-[9px] font-semibold">Add</span>
+                  <ImageIcon className="w-5 h-5" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Add</span>
                 </div>
               )}
             </div>
           </div>
         ) : loadingCount > 0 ? (
-          /* Loading state */
-          <div className="w-full border-2 border-dashed border-blue-300 bg-blue-50 rounded-xl py-10 flex flex-col items-center gap-3">
-            <div className="relative w-12 h-12">
+          <div className="w-full border-4 border-dashed border-apple-blue/20 bg-apple-blue/5 rounded-4xl py-12 flex flex-col items-center gap-4 animate-pulse">
+            <div className="relative w-14 h-14">
               <svg className="animate-spin" viewBox="0 0 36 36">
-                <circle className="text-blue-200" stroke="currentColor" strokeWidth="4" fill="none" cx="18" cy="18" r="14" />
-                <circle className="text-blue-500" stroke="currentColor" strokeWidth="4" fill="none" cx="18" cy="18" r="14"
+                <circle className="text-apple-blue/10" stroke="currentColor" strokeWidth="4" fill="none" cx="18" cy="18" r="14" />
+                <circle className="text-apple-blue" stroke="currentColor" strokeWidth="4" fill="none" cx="18" cy="18" r="14"
                   strokeDasharray="88" strokeDashoffset="66" strokeLinecap="round" />
               </svg>
             </div>
-            <span className="text-sm font-medium text-blue-600">Processing {loadingCount} photo{loadingCount > 1 ? 's' : ''}…</span>
-            <span className="text-xs text-blue-400">Compressing for optimal quality</span>
+            <span className="text-sm font-black text-apple-blue uppercase tracking-widest">Processing {loadingCount} photo{loadingCount > 1 ? 's' : ''}…</span>
           </div>
         ) : (
-          /* Full drop zone when no images yet */
           <div
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
             onDrop={(e) => { e.preventDefault(); setDragOver(false); processFiles(e.dataTransfer.files); }}
             onClick={() => fileRef.current?.click()}
-            className={`w-full border-2 border-dashed rounded-xl py-10 flex flex-col items-center gap-2 cursor-pointer select-none transition-colors
-              ${dragOver ? 'border-blue-400 bg-blue-50 text-blue-500' : 'border-gray-300 text-gray-400 hover:border-blue-400 hover:text-blue-500'}`}
+            className={`w-full border-4 border-dashed rounded-[2.5rem] py-16 flex flex-col items-center gap-4 cursor-pointer select-none transition-all duration-300
+              ${dragOver ? 'border-apple-blue bg-apple-blue/5 text-apple-blue scale-102' : 'border-slate-100 text-slate-300 hover:border-apple-blue/30 hover:text-apple-blue hover:bg-slate-50'}`}
           >
-            <ImageIcon className="w-8 h-8" />
-            <span className="text-sm font-medium">Click or drag & drop photos here</span>
-            <span className="text-xs">JPG · PNG · WEBP — max {MAX_FILE_MB} MB each · up to {MAX_IMAGES} photos</span>
+            <div className="w-16 h-16 rounded-4xl bg-slate-50 flex items-center justify-center text-slate-200 mb-2 transition-colors group-hover:text-apple-blue">
+              <ImageIcon className="w-8 h-8" />
+            </div>
+            <span className="text-sm font-black text-slate-900 uppercase tracking-widest">Add photos</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">JPG · PNG · WEBP — max {MAX_FILE_MB}MB each</span>
           </div>
         )}
 
@@ -939,19 +986,19 @@ const StepPhoto: React.FC<{
       </div>
 
       {/* Description */}
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+      <div className="group">
+        <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-4 group-focus-within:text-apple-blue transition-colors">
           Description{' '}
           {base.category === 'jobs' || base.category === 'services'
             ? <span className="text-red-400">*</span>
-            : <span className="text-gray-400 font-normal">(optional)</span>}
+            : <span className="text-slate-300 font-bold lowercase tracking-tight">(optional)</span>}
         </label>
         <div className="relative">
-          <span className="absolute top-3 left-3 text-gray-400 pointer-events-none">
-            <AlignLeft className="w-4 h-4" />
+          <span className="absolute top-5 left-5 text-slate-300 pointer-events-none group-focus-within:text-apple-blue transition-colors">
+            <AlignLeft className="w-5 h-5" />
           </span>
           <textarea
-            rows={4}
+            rows={5}
             value={base.description}
             onChange={(e) => onDescChange(e.target.value)}
             maxLength={1000}
@@ -964,10 +1011,10 @@ const StepPhoto: React.FC<{
                 ? 'Describe the role, responsibilities, required skills, and benefits…'
                 : 'Describe your service, what is included, and why clients should choose you…'
             }
-            className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900
-              placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-all"
+            className="block w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-4xl text-sm text-slate-900 font-bold
+              placeholder-slate-300 resize-none focus:outline-none focus:ring-8 focus:ring-apple-blue/5 focus:bg-white transition-all"
           />
-          <p className="mt-1 text-xs text-gray-400 text-right">{base.description.length} / 1000</p>
+          <p className="mt-3 text-[10px] font-black text-slate-400 text-right uppercase tracking-widest mr-4">{base.description.length} / 1000</p>
         </div>
       </div>
 
@@ -1200,6 +1247,10 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
     setStep(prev => (prev + 1) as Step);
   };
 
+  const handleCategorySelect = useCallback((cat: Category) => {
+    setBase(prev => ({ ...prev, category: cat }));
+  }, []);
+
   const buildDetails = () => {
     switch (base.category) {
       case 'auto': return { ...autoD, description: base.description };
@@ -1209,11 +1260,13 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
     }
   };
 
-  const handleSubmit = async () => {
-    if (isSubmitting) return;
-    if (!validateStep(currentStep)) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isLoading) return;
+    const error = validateStep(step, base, svcD);
+    if (error) { setStepError(error); return; }
 
-    setIsSubmitting(true);
+    setIsLoading(true);
     try {
       const adData: PostAdFormData = {
         title: base.title,
@@ -1231,7 +1284,7 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
     } catch (err: any) {
       setSubmitError(err?.message || 'Failed to publish your ad. Please try again.');
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
@@ -1242,20 +1295,20 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
   return (
     <div className="fixed inset-0 z-100 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="post-ad-title">
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={handleClose} />
+      <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xl transition-opacity" onClick={handleClose} />
 
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden">
+      <div className="flex min-h-full items-center justify-center p-6">
+        <div className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-none transform transition-all">
 
           {/* ── Header ─────────────────────────────────────────────────── */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white">
+          <div className="flex items-center justify-between px-8 py-6 border-none bg-white/80 backdrop-blur-xl sticky top-0 z-20">
             <div>
-              <h3 id="post-ad-title" className="text-base font-bold text-gray-900">
-                {isSuccess ? 'Ad published!' : 'Post a New Ad'}
+              <h3 id="post-ad-title" className="text-xl font-black text-slate-900 tracking-tighter">
+                {isSuccess ? 'AD PUBLISHED!' : 'POST A NEW AD'}
               </h3>
               {!isSuccess && (
-                <p className="text-xs text-gray-400 mt-0.5">
-                  Step {step} / 4 — {STEP_LABELS[step]}
+                <p className="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-widest">
+                  Step {step} of 4 — {STEP_LABELS[step]}
                 </p>
               )}
             </div>
@@ -1263,26 +1316,28 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
               type="button"
               aria-label="Close"
               onClick={handleClose}
-              className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              className="p-2.5 rounded-full text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-all active:scale-90"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* ── Progress strip ──────────────────────────────────────────── */}
           {!isSuccess && (
-            <div className="px-6 pt-4 pb-1">
-              <div className="flex gap-1.5">
+            <div className="px-8 pt-2 pb-2">
+              <div className="flex gap-2">
                 {([1, 2, 3, 4] as Step[]).map(s => (
                   <div
                     key={s}
-                    className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${s <= step ? cfg.bar : 'bg-gray-200'}`}
+                    className={`h-1.5 flex-1 rounded-full transition-colors duration-150 ease-out ${
+                      s <= step ? `${cfg.bar} shadow-sm ${cfg.barShadow}` : 'bg-slate-100'
+                    } ${s === step ? `ring-2 ${cfg.ring} ring-opacity-20` : ''}`}
                   />
                 ))}
               </div>
-              <div className="flex justify-between mt-1">
+              <div className="flex justify-between mt-3">
                 {(['Category', 'Basic Info', 'Details', 'Photo'] as const).map((label, i) => (
-                  <span key={label} className={`text-[10px] font-medium ${i + 1 === step ? cfg.text : 'text-gray-400'}`}>
+                  <span key={label} className={`text-[9px] font-black uppercase tracking-widest transition-colors duration-150 ${i + 1 === step ? cfg.text : 'text-slate-300'}`}>
                     {label}
                   </span>
                 ))}
@@ -1294,25 +1349,28 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
           <form onSubmit={handleSubmit}>
             <div className="px-6 py-5 max-h-[58vh] overflow-y-auto">
               {isSuccess ? (
-                /* ─ Success state ─ */
-                <div className="flex flex-col items-center gap-4 py-8 text-center">
-                  <div className={`w-16 h-16 rounded-full flex items-center justify-center ${cfg.bg} ${cfg.text}`}>
-                    <CheckCircle className="w-8 h-8" />
+                <>
+                  {/* ─ Success state ─ */}
+                <div className="flex flex-col items-center gap-6 py-10 text-center relative overflow-hidden">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-apple-blue/5 rounded-full blur-3xl -z-10" />
+                  <div className="w-20 h-20 rounded-full bg-apple-blue flex items-center justify-center text-white shadow-xl shadow-apple-blue/20 relative">
+                    <CheckCircle className="w-10 h-10" />
+                    <div className="absolute inset-0 rounded-full border-4 border-apple-blue/20 animate-ping" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-gray-900">Ad published successfully!</h4>
-                    <p className="text-sm text-gray-500 mt-1 max-w-xs mx-auto">
+                    <h4 className="text-2xl font-black text-slate-900 tracking-tighter">AD PUBLISHED!</h4>
+                    <p className="text-sm text-slate-500 mt-2 max-w-xs mx-auto font-medium">
                       Your listing is now live and visible to everyone on Daberli.
                     </p>
                   </div>
                   {base.images[0] && (
-                    <div className="w-full rounded-xl overflow-hidden aspect-video bg-gray-100">
+                    <div className="w-full rounded-4xl overflow-hidden aspect-video bg-slate-100 shadow-2xl">
                       <img src={base.images[0]} alt="Cover" className="w-full h-full object-cover" />
                     </div>
                   )}
-                  <div className={`w-full ${cfg.bg} border ${cfg.border} rounded-xl px-4 py-3 text-sm text-left`}>
-                    <p className={`font-semibold ${cfg.text}`}>{base.title || 'Your listing'}</p>
-                    <p className="text-gray-500 text-xs mt-0.5">
+                  <div className="apple-card w-full bg-slate-50 border-none px-6 py-4 text-left">
+                    <p className="font-black text-xs uppercase tracking-widest text-slate-900">{base.title || 'Your listing'}</p>
+                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-tight mt-1.5">
                       {base.location} · {base.price ? `${Number(base.price).toLocaleString()} ${base.priceUnit}` : 'Price not set'}
                       {base.images.length > 1 && ` · ${base.images.length} photos`}
                     </p>
@@ -1320,17 +1378,18 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
                   <button
                     type="button"
                     onClick={handleClose}
-                    className={`w-full py-2.5 rounded-xl text-sm font-bold text-white transition-colors ${cfg.btn}`}
+                    className={`apple-button w-full py-4 rounded-2xl text-sm font-black uppercase tracking-widest text-white ${cfg.btn} shadow-lg ${cfg.btnShadow} transition-colors duration-150`}
                   >
-                    Close
+                    Done
                   </button>
                 </div>
+                </>
               ) : (
                 <>
                   {step === 1 && (
                     <StepCategory
                       selected={base.category}
-                      onSelect={cat => setBase(prev => ({ ...prev, category: cat }))}
+                      onSelect={handleCategorySelect}
                     />
                   )}
                   {step === 2 && <StepBasic data={base} onChange={handleBaseChange} />}
@@ -1370,19 +1429,19 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
               </div>
             )}
             {!isSuccess && (
-              <div className="px-6 pb-5 pt-3 border-t border-gray-100 flex items-center gap-3">
+              <div className="px-8 pb-8 pt-4 bg-white/80 backdrop-blur-xl flex items-center gap-4 sticky bottom-0 z-20">
                 {/* Back button */}
                 {step > 1 ? (
                   <button
                     type="button"
                     onClick={() => setStep(prev => (prev - 1) as Step)}
-                    className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                    className="apple-button flex items-center gap-2 px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all"
                   >
-                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <ArrowLeft className="w-4 h-4" />
                     Back
                   </button>
                 ) : (
-                  <div />
+                  <div className="flex-0" />
                 )}
 
                 {/* Continue / Publish */}
@@ -1391,17 +1450,15 @@ const PostAdModal: React.FC<PostAdModalProps> = ({ isOpen, onClose, onSubmit }) 
                     type="button"
                     onClick={handleNext}
                     disabled={!canProceed()}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white transition-colors
-                      disabled:opacity-40 disabled:cursor-not-allowed ${cfg.btn}`}
+                    className={`apple-button flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-white ${cfg.btn} shadow-lg ${cfg.btnShadow} transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed`}
                   >
-                    Continue <ArrowRight className="w-3.5 h-3.5" />
+                    Continue <ArrowRight className="w-4 h-4" />
                   </button>
                 ) : (
                   <button
                     type="submit"
                     disabled={isLoading || !canProceed()}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white transition-colors
-                      disabled:opacity-40 disabled:cursor-not-allowed ${cfg.btn}`}
+                    className={`apple-button flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-white ${cfg.btn} shadow-lg ${cfg.btnShadow} transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed`}
                   >
                     {isLoading
                       ? <><Loader2 className="w-4 h-4 animate-spin" /> Publishing…</>

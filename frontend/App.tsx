@@ -16,6 +16,7 @@ import RealEstatePage from './pages/RealEstatePage';
 import ServicesPage from './pages/ServicesPage';
 import TermsPage from './pages/TermsPage';
 import AboutPage from './pages/AboutPage';
+import BoostedPage from './pages/BoostedPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdsProvider, useAds } from './contexts/AdsContext';
 import { messagesAPI } from './services/api';
@@ -135,7 +136,14 @@ const AppContent: React.FC = () => {
           path="/my-ads"
           element={<MyAdsPage user={user} onSignIn={openAuthModal} onSignOut={handleSignOut} onPostAdClick={openPostAdModal} ads={ads} adMessages={adMessages} onSendReply={handleSendReply} selectedWilaya={selectedWilaya} onWilayaChange={setSelectedWilaya} />}
         />
-        <Route path="/messages" element={<MessagesPage />} />
+        <Route
+          path="/boosted"
+          element={<BoostedPage user={user} onSignIn={openAuthModal} onSignOut={handleSignOut} onPostAdClick={openPostAdModal} ads={ads} selectedWilaya={selectedWilaya} onWilayaChange={setSelectedWilaya} />}
+        />
+        <Route
+          path="/messages"
+          element={<MessagesPage user={user} onSignIn={openAuthModal} onSignOut={handleSignOut} onPostAdClick={openPostAdModal} ads={ads} adMessages={adMessages} onSendReply={handleSendReply} selectedWilaya={selectedWilaya} onWilayaChange={setSelectedWilaya} />}
+        />
         <Route
           path="/settings"
           element={<SettingsPage user={user} onSignIn={openAuthModal} onSignOut={handleSignOut} onPostAdClick={openPostAdModal} onUpdateUser={handleUpdateUser} selectedWilaya={selectedWilaya} onWilayaChange={setSelectedWilaya} />}

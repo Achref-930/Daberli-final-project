@@ -99,8 +99,36 @@ async function apiFetch<T = any>(
   }
 
   if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.message || `Request failed (${res.status})`);
+    const bodyText = await res.text().catch(() => '');
+    let data: any = {};
+
+    if (bodyText) {
+      try {
+        data = JSON.parse(bodyText);
+      } catch {
+        data = {};
+      }
+    }
+
+    if (typeof data.message === 'string' && data.message.trim()) {
+      throw new Error(data.message.trim());
+    }
+
+    if (
+      res.status >= 500 &&
+      /ECONNREFUSED|ECONNRESET|proxy error|socket hang up|connect/i.test(bodyText)
+    ) {
+      throw new Error(
+        `Backend API appears unavailable for ${requestUrl}. Verify backend is running on ${API_BASE}.`
+      );
+    }
+
+    const snippet = bodyText.trim().replace(/\s+/g, ' ');
+    throw new Error(
+      snippet
+        ? `Request failed (${res.status}): ${snippet.slice(0, 220)}`
+        : `Request failed (${res.status})`
+    );
   }
 
   return res.json();
@@ -162,6 +190,8 @@ export const adsAPI = {
     location?: string;
     q?: string;
     userId?: string;
+    page?: number;
+    limit?: number;
   }) {
     const searchParams = new URLSearchParams();
     if (params) {
@@ -230,6 +260,14 @@ export const adsAPI = {
 
   async reject(id: string) {
     return apiFetch(`/ads/${id}/reject`, { method: 'PUT' });
+  },
+
+  async boost(id: string) {
+    return apiFetch(`/ads/${id}/boost`, { method: 'PUT' });
+  },
+
+  async unboost(id: string) {
+    return apiFetch(`/ads/${id}/unboost`, { method: 'PUT' });
   },
 };
 
