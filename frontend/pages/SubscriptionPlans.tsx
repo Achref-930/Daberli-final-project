@@ -1,8 +1,32 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import FloatingActionBar from '../components/FloatingActionBar';
+import { User, Ad } from '../types';
 import './SubscriptionPlans.css';
 
-export default function SubscriptionPlans() {
+interface SubscriptionPlansProps {
+  user: User | null;
+  onSignIn: () => void;
+  onSignOut: () => void;
+  onPostAdClick: () => void;
+  ads: Ad[];
+  selectedWilaya: string;
+  onWilayaChange: (wilaya: string) => void;
+}
+
+export default function SubscriptionPlans({
+  user,
+  onSignIn,
+  onSignOut,
+  onPostAdClick,
+  ads,
+  selectedWilaya,
+  onWilayaChange,
+}: SubscriptionPlansProps) {
   const [isYearly, setIsYearly] = useState(false);
+  const navigate = useNavigate();
 
   const plans = [
     {
@@ -53,62 +77,94 @@ export default function SubscriptionPlans() {
   ];
 
   return (
-    <div className="sub-container">
-      <div className="sub-header">
-        <h1 className="sub-title">Subscription Plans</h1>
-        <p className="sub-subtitle">Choose the perfect plan to boost your listings and reach your goals.</p>
-      </div>
+    <div className="min-h-screen bg-brand-surface flex flex-col font-sans">
+      <Navbar 
+        selectedWilaya={selectedWilaya} 
+        onWilayaChange={onWilayaChange} 
+        user={user}
+        onSignIn={onSignIn}
+        onSignOut={onSignOut}
+        onPostAd={onPostAdClick}
+        ads={ads}
+        showBackButton
+        forceScrolled
+      />
 
-      <div className="toggle-container">
-        <button 
-          className={`toggle-btn ${!isYearly ? 'active' : ''}`} 
-          onClick={() => setIsYearly(false)}
-        >
-          Monthly
-        </button>
-        <button 
-          className={`toggle-btn ${isYearly ? 'active' : ''}`} 
-          onClick={() => setIsYearly(true)}
-        >
-          Yearly (Save ~20%)
-        </button>
-      </div>
+      <main className="grow pt-20 md:pt-24 bg-white">
+        <div className="sub-container">
+          <div className="sub-header">
+            <h1 className="sub-title">Subscription Plans</h1>
+            <p className="sub-subtitle">Choose the perfect plan to boost your listings and reach your goals.</p>
+          </div>
 
-      <div className="plans-grid">
-        {plans.map((plan, index) => {
-          const currentPrice = isYearly ? plan.priceYearly : plan.priceMonthly;
-          return (
-            <div key={index} className={`plan-card ${plan.featured ? 'featured' : ''}`}>
-              {plan.featured && <span className="badge">Most Popular</span>}
-              
-              <div>
-                <h2 className="plan-name">{plan.name}</h2>
-                <p className="plan-description">{plan.description}</p>
-                
-                <div className="plan-price-container">
-                  <span className="plan-price">
-                    {currentPrice === 0 ? 'Free' : `${currentPrice} DA`}
-                  </span>
-                  {currentPrice > 0 && (
-                    <span className="plan-duration">/{isYearly ? 'mo (billed annually)' : 'mo'}</span>
-                  )}
+          <div className="toggle-container">
+            <button 
+              className={`toggle-btn ${!isYearly ? 'active' : ''}`} 
+              onClick={() => setIsYearly(false)}
+            >
+              Monthly
+            </button>
+            <button 
+              className={`toggle-btn ${isYearly ? 'active' : ''}`} 
+              onClick={() => setIsYearly(true)}
+            >
+              Yearly (Save ~20%)
+            </button>
+          </div>
+
+          <div className="plans-grid">
+            {plans.map((plan, index) => {
+              const currentPrice = isYearly ? plan.priceYearly : plan.priceMonthly;
+              return (
+                <div key={index} className={`plan-card ${plan.featured ? 'featured' : ''}`}>
+                  {plan.featured && <span className="badge">Most Popular</span>}
+                  
+                  <div>
+                    <h2 className="plan-name">{plan.name}</h2>
+                    <p className="plan-description">{plan.description}</p>
+                    
+                    <div className="plan-price-container">
+                      <span className="plan-price">
+                        {currentPrice === 0 ? 'Free' : `${currentPrice} DA`}
+                      </span>
+                      {currentPrice > 0 && (
+                        <span className="plan-duration">/{isYearly ? 'mo (billed annually)' : 'mo'}</span>
+                      )}
+                    </div>
+
+                    <ul className="features-list">
+                      {plan.features.map((feature, fIndex) => (
+                        <li key={fIndex} className={`feature-item ${!feature.available ? 'disabled' : ''}`}>
+                          <span className="feature-icon">{feature.available ? '✓' : '✕'}</span>
+                          {feature.text}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <button 
+                    className="plan-btn"
+                    onClick={() => {
+                      if (currentPrice > 0 && !user) {
+                        onSignIn();
+                      }
+                    }}
+                  >
+                    {plan.buttonText}
+                  </button>
                 </div>
+              );
+            })}
+          </div>
+        </div>
+      </main>
 
-                <ul className="features-list">
-                  {plan.features.map((feature, fIndex) => (
-                    <li key={fIndex} className={`feature-item ${!feature.available ? 'disabled' : ''}`}>
-                      <span className="feature-icon">{feature.available ? '✓' : '✕'}</span>
-                      {feature.text}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <button className="plan-btn">{plan.buttonText}</button>
-            </div>
-          );
-        })}
-      </div>
+      <Footer />
+      <FloatingActionBar 
+        onHome={() => navigate('/')}
+        onPostAd={onPostAdClick} 
+        onProfile={user ? () => navigate('/profile') : onSignIn}
+      />
     </div>
   );
 }

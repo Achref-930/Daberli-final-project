@@ -163,7 +163,17 @@ const AppContent: React.FC = () => {
         />
         <Route
           path="/subscription-plans"
-          element={<SubscriptionPlans />}
+          element={
+            <SubscriptionPlans
+              user={user}
+              onSignIn={openAuthModal}
+              onSignOut={handleSignOut}
+              onPostAdClick={openPostAdModal}
+              ads={ads}
+              selectedWilaya={selectedWilaya}
+              onWilayaChange={setSelectedWilaya}
+            />
+          }
         />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
