@@ -344,7 +344,7 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
   if (!ad) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar user={user} onSignIn={onSignIn} onSignOut={onSignOut} onPostAd={onPostAdClick} selectedWilaya={selectedWilaya} onWilayaChange={onWilayaChange} showBackButton />
+        <Navbar user={user} onSignIn={onSignIn} onSignOut={onSignOut} onPostAd={onPostAdClick} selectedWilaya={selectedWilaya} onWilayaChange={onWilayaChange} showBackButton forceScrolled />
         <div className="max-w-lg mx-auto px-4 pt-28 pb-24 md:pt-32 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 text-red-500 mb-6">
             <ShieldAlert className="w-8 h-8" />
@@ -393,6 +393,7 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
         selectedWilaya={selectedWilaya}
         onWilayaChange={onWilayaChange}
         showBackButton
+        forceScrolled
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8 md:pt-28">
