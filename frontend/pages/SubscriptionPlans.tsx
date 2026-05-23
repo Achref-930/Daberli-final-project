@@ -120,7 +120,7 @@ export default function SubscriptionPlans({
               const currentPrice = isYearly ? plan.priceYearly : plan.priceMonthly;
               return (
                 <div key={index} className={`plan-card ${plan.featured ? 'featured' : ''}`}>
-                  {plan.featured && <span className="badge">Most Popular</span>}
+                  {plan.featured && <span className="sub-badge">Most Popular</span>}
                   
                   <div>
                     <h2 className="plan-name">{plan.name}</h2>

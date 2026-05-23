@@ -434,8 +434,8 @@ const AdDetailPage: React.FC<AdDetailPageProps> = ({
                     {theme.icon} {theme.label}
                   </span>
                   {ad.isBoosted && (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-amber-400 text-amber-900">
-                      <Zap className="w-3 h-3 fill-current" /> Sponsored
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-red-600 text-white shadow-sm shadow-red-950/20">
+                      <Zap className="w-3 h-3 fill-current text-yellow-300" /> Sponsored
                     </span>
                   )}
                 </div>

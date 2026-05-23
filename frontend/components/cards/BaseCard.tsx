@@ -80,8 +80,8 @@ const BaseCard: React.FC<BaseCardProps> = ({
 
         {/* Boosted badge bottom-left */}
         {isBoosted && (
-          <span className="absolute bottom-3 left-3 badge bg-amber-400 text-amber-950 font-black shadow-sm text-[9px] uppercase tracking-tighter">
-            <Zap className="w-2.5 h-2.5 fill-current" /> {boostedLabel}
+          <span className="absolute bottom-3 left-3 badge bg-red-600 text-white font-bold shadow-md shadow-red-950/20 gap-1 uppercase tracking-wider text-[10px]">
+            <Zap className="w-3 h-3 fill-current text-yellow-300" /> {boostedLabel}
           </span>
         )}
 
