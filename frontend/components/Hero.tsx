@@ -5,11 +5,10 @@ import { adsAPI } from '../services/api';
 import LaserFlow from './LaserFlow.jsx';
 
 const PHRASES = [
-  { text: 'a Car',        color: 'text-red-400' },
-  { text: 'a Home',       color: 'text-emerald-400' },
-  { text: 'a Job',        color: 'text-apple-blue' },
-  { text: 'a Pro',        color: 'text-violet-400' },
-  { text: 'anything',     color: 'text-amber-400' },
+  { text: 'a Car',  color: 'text-red-400' },
+  { text: 'a Home', color: 'text-emerald-400' },
+  { text: 'a Job',  color: 'text-apple-blue' },
+  { text: 'a Pro',  color: 'text-violet-400' },
 ];
 
 const STATS = [
@@ -146,7 +145,7 @@ const Hero: React.FC = () => {
         {/* Headline */}
         <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight mb-6 leading-[1.1]">
           Find{' '}
-          {/* Ghost-sibling grid: locks width to the longest phrase ("anything")
+          {/* Ghost-sibling grid: locks width to the longest phrase ("a Home")
               so the h1 never reflows when the animated word changes. */}
           <span className="inline-grid">
             {/* Invisible ghost — always holds the maximum width */}
@@ -154,7 +153,7 @@ const Hero: React.FC = () => {
               className="col-start-1 row-start-1 invisible select-none"
               aria-hidden="true"
             >
-              anything
+              a Home
             </span>
             {/* Visible animated phrase — stacked in the same grid cell */}
             <span
