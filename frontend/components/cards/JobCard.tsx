@@ -16,6 +16,8 @@ const JobCard: React.FC<JobCardProps> = ({ ad }) => {
     <BaseCard
       onClick={goToDetail}
       onActionClick={goToDetail}
+      image={ad.image}
+      photoCount={ad.images?.length}
       title={ad.title}
       location={ad.location}
       category="Jobs"
