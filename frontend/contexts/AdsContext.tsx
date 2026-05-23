@@ -14,6 +14,7 @@ interface AdsContextType {
   handleRejectAd: (adId: string) => Promise<void>;
   handleBoostAd: (adId: string) => Promise<void>;
   handleUnboostAd: (adId: string) => Promise<void>;
+  handleDeleteAd: (adId: string) => Promise<void>;
 }
 
 const AdsContext = createContext<AdsContextType | undefined>(undefined);
@@ -119,6 +120,16 @@ export const AdsProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const handleDeleteAd = async (adId: string) => {
+    try {
+      await adsAPI.delete(adId);
+      setAds((prevAds) => prevAds.filter((ad) => ad.id !== adId && ad._id !== adId));
+    } catch (error) {
+      console.error('Failed to delete ad:', error);
+      throw error;
+    }
+  };
+
   const visibleAds = useMemo(() => {
     return ads.filter((ad) => {
       if (ad.approvalStatus === 'approved') return true;
@@ -140,6 +151,7 @@ export const AdsProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     handleRejectAd,
     handleBoostAd,
     handleUnboostAd,
+    handleDeleteAd,
   };
 
   return <AdsContext.Provider value={value}>{children}</AdsContext.Provider>;

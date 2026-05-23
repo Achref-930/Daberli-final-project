@@ -1,4 +1,4 @@
-import { MessageSquare, Send, ShieldAlert, Zap } from 'lucide-react';
+import { MessageSquare, Send, ShieldAlert, Zap, Trash2 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import Navbar from '../components/Navbar';
 import { handleImgError } from '../constants';
@@ -36,7 +36,7 @@ const MyAdsPage: React.FC<MyAdsPageProps> = ({
   selectedWilaya,
   onWilayaChange,
 }) => {
-  const { handleBoostAd, handleUnboostAd } = useAds();
+  const { handleBoostAd, handleUnboostAd, handleDeleteAd } = useAds();
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const messageContainerRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const navigate = useNavigate();
@@ -148,34 +148,54 @@ const MyAdsPage: React.FC<MyAdsPageProps> = ({
 
                       <h2 className="text-2xl font-black text-slate-900 tracking-tight">{ad.title}</h2>
                       <p className="text-sm text-slate-400 mt-1 font-bold uppercase tracking-wider">{ad.location} • {ad.datePosted}</p>
-                      <div className="flex items-center justify-between mt-4">
+                      <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
                         <p className="text-xl font-black text-apple-blue">{ad.price.toLocaleString()} {ad.currency}</p>
-                        {!ad.isBoosted && status === 'approved' && (
+                        <div className="flex items-center gap-2.5">
+                          {!ad.isBoosted && status === 'approved' && (
+                            <button
+                              onClick={() => {
+                                const adId = ad.id || ad._id;
+                                if (!adId) return;
+                                handleBoostAd(adId);
+                              }}
+                              className="apple-button inline-flex items-center gap-2 px-5 py-2.5 bg-amber-400 hover:bg-amber-500 text-amber-950 text-xs font-black transition-all shadow-md shadow-amber-200 tracking-tighter"
+                            >
+                              <Zap className="w-4 h-4 fill-current" />
+                              BOOST LISTING
+                            </button>
+                          )}
+                          {ad.isBoosted && status === 'approved' && (
+                            <button
+                              onClick={() => {
+                                const adId = ad.id || ad._id;
+                                if (!adId) return;
+                                handleUnboostAd(adId);
+                              }}
+                              className="apple-button inline-flex items-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black transition-all shadow-sm tracking-tighter"
+                            >
+                              <Zap className="w-4 h-4" />
+                              UNBOOST
+                            </button>
+                          )}
                           <button
-                            onClick={() => {
+                            onClick={async () => {
                               const adId = ad.id || ad._id;
                               if (!adId) return;
-                              handleBoostAd(adId);
+                              if (confirm('Are you sure you want to permanently delete this listing? This action cannot be undone.')) {
+                                try {
+                                  await handleDeleteAd(adId);
+                                } catch (err: any) {
+                                  alert(err.message || 'Failed to delete listing.');
+                                }
+                              }
                             }}
-                            className="apple-button inline-flex items-center gap-2 px-5 py-2.5 bg-amber-400 hover:bg-amber-500 text-amber-950 text-xs font-black transition-all shadow-md shadow-amber-200 tracking-tighter"
+                            className="apple-button inline-flex items-center gap-2 px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-black transition-all tracking-tighter"
+                            title="Delete listing"
                           >
-                            <Zap className="w-4 h-4 fill-current" />
-                            BOOST LISTING
+                            <Trash2 className="w-4 h-4" />
+                            DELETE
                           </button>
-                        )}
-                        {ad.isBoosted && status === 'approved' && (
-                          <button
-                            onClick={() => {
-                              const adId = ad.id || ad._id;
-                              if (!adId) return;
-                              handleUnboostAd(adId);
-                            }}
-                            className="apple-button inline-flex items-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black transition-all shadow-sm tracking-tighter"
-                          >
-                            <Zap className="w-4 h-4" />
-                            UNBOOST
-                          </button>
-                        )}
+                        </div>
                       </div>
 
                       <div className="mt-8 rounded-2xl bg-slate-50 p-5">
