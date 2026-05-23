@@ -146,11 +146,24 @@ const Hero: React.FC = () => {
         {/* Headline */}
         <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight mb-6 leading-[1.1]">
           Find{' '}
-          <span
-            className={`transition-all duration-500 ${phrase.color} ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-            style={{ display: 'inline-block' }}
-          >
-            {phrase.text}
+          {/* Ghost-sibling grid: locks width to the longest phrase ("anything")
+              so the h1 never reflows when the animated word changes. */}
+          <span className="inline-grid">
+            {/* Invisible ghost — always holds the maximum width */}
+            <span
+              className="col-start-1 row-start-1 invisible select-none"
+              aria-hidden="true"
+            >
+              anything
+            </span>
+            {/* Visible animated phrase — stacked in the same grid cell */}
+            <span
+              className={`col-start-1 row-start-1 text-center transition-all duration-500 ${phrase.color} ${
+                visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+            >
+              {phrase.text}
+            </span>
           </span>{' '}
           in Algeria
         </h1>
