@@ -1,0 +1,209 @@
+/* SubscriptionPlans.css */
+.sub-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #000000;
+  background-color: #ffffff;
+  text-align: center;
+}
+
+.sub-header {
+  margin-bottom: 3.5rem;
+}
+
+.sub-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.sub-subtitle {
+  color: #666666;
+  font-size: 1.1rem;
+}
+
+/* High-Contrast Toggle Switch */
+.toggle-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 4rem;
+  background: #f4f4f5;
+  padding: 0.35rem;
+  border-radius: 8px;
+  border: 1px solid #e4e4e7;
+}
+
+.toggle-btn {
+  background: transparent;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn.active {
+  background: #000000;
+  color: #ffffff;
+}
+
+/* Plans Grid */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  align-items: stretch;
+}
+
+/* Plan Card Base (Stark Minimalist) */
+.plan-card {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+  padding: 2.5rem 2rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.plan-card:hover {
+  border-color: #000000;
+}
+
+/* Premium / Featured Card - Inverted High Contrast */
+.plan-card.featured {
+  background: #000000;
+  color: #ffffff;
+  border: 1px solid #000000;
+  transform: scale(1.03);
+}
+
+.badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #ffffff;
+  color: #000000;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+/* Card Typography */
+.plan-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.plan-description {
+  font-size: 0.95rem;
+  color: #666666;
+  margin-bottom: 2rem;
+  min-height: 40px;
+}
+
+.plan-card.featured .plan-description {
+  color: #a1a1aa;
+}
+
+.plan-price-container {
+  margin-bottom: 2rem;
+}
+
+.plan-price {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+.plan-duration {
+  font-size: 1rem;
+  color: #666666;
+}
+
+.plan-card.featured .plan-duration {
+  color: #a1a1aa;
+}
+
+/* Features List */
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2.5rem 0;
+  flex-grow: 1;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.95rem;
+}
+
+.feature-item.disabled {
+  color: #a1a1aa;
+  text-decoration: line-through;
+}
+
+.feature-icon {
+  font-weight: bold;
+}
+
+/* Action Buttons */
+.plan-btn {
+  width: 100%;
+  padding: 0.85rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  border: 1px solid #000000;
+  background: transparent;
+  color: #000000;
+}
+
+.plan-btn:hover {
+  background: #000000;
+  color: #ffffff;
+}
+
+/* Featured Button State */
+.plan-card.featured .plan-btn {
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid #ffffff;
+}
+
+.plan-card.featured .plan-btn:hover {
+  background: transparent;
+  color: #ffffff;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+  .plan-card.featured {
+    transform: none;
+  }
+  .plans-grid {
+    gap: 1.5rem;
+  }
+  }
+}
