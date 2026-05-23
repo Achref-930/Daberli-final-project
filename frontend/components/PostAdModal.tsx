@@ -410,11 +410,12 @@ const StepRealEstateDetails: React.FC<{
   d: RealEstateDetails;
   set: (k: keyof RealEstateDetails, v: string) => void;
 }> = ({ d, set }) => {
+  const cfg = CATEGORY_CONFIG['real-estate'];
   const ch = (k: keyof RealEstateDetails) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => set(k, e.target.value);
   return (
     <div className="space-y-4">
-      <FieldWrapper label="Property type" icon={<Home className="w-4 h-4" />}>
-        <select value={d.type} onChange={ch('type')} className={selectCls()}>
+      <FieldWrapper accent={cfg} label="Property type" icon={<Home className="w-4 h-4" />}>
+        <select value={d.type} onChange={ch('type')} className={selectCls(cfg)}>
           <option value="">Select type</option>
           {['Appartement','Villa','Studio','Bureau','Local commercial','Terrain','Maison','Duplex','Penthouse'].map(t => <option key={t}>{t}</option>)}
         </select>
@@ -422,18 +423,18 @@ const StepRealEstateDetails: React.FC<{
       </FieldWrapper>
 
       <div className="grid grid-cols-3 gap-3">
-        <FieldWrapper label="Area (m²)" icon={<Square className="w-4 h-4" />}>
-          <input type="number" min="1" value={d.area} onChange={ch('area')} placeholder="m²" className={inputCls()} />
+        <FieldWrapper accent={cfg} label="Area (m²)" icon={<Square className="w-4 h-4" />}>
+          <input type="number" min="1" value={d.area} onChange={ch('area')} placeholder="m²" className={inputCls(cfg)} />
         </FieldWrapper>
-        <FieldWrapper label="Bedrooms" icon={<BedDouble className="w-4 h-4" />}>
-          <select value={d.bedrooms} onChange={ch('bedrooms')} className={selectCls()}>
+        <FieldWrapper accent={cfg} label="Bedrooms" icon={<BedDouble className="w-4 h-4" />}>
+          <select value={d.bedrooms} onChange={ch('bedrooms')} className={selectCls(cfg)}>
             <option value="">—</option>
             {['Studio','1','2','3','4','5','6+'].map(n => <option key={n}>{n}</option>)}
           </select>
           <DownIcon />
         </FieldWrapper>
-        <FieldWrapper label="Bathrooms" icon={<Bath className="w-4 h-4" />}>
-          <select value={d.bathrooms} onChange={ch('bathrooms')} className={selectCls()}>
+        <FieldWrapper accent={cfg} label="Bathrooms" icon={<Bath className="w-4 h-4" />}>
+          <select value={d.bathrooms} onChange={ch('bathrooms')} className={selectCls(cfg)}>
             <option value="">—</option>
             {['1','2','3','4+'].map(n => <option key={n}>{n}</option>)}
           </select>
@@ -442,15 +443,15 @@ const StepRealEstateDetails: React.FC<{
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label="Floor" icon={<Building2 className="w-4 h-4" />}>
-          <select value={d.floor} onChange={ch('floor')} className={selectCls()}>
+        <FieldWrapper accent={cfg} label="Floor" icon={<Building2 className="w-4 h-4" />}>
+          <select value={d.floor} onChange={ch('floor')} className={selectCls(cfg)}>
             <option value="">Select</option>
             {['Rez-de-chaussée','1er étage','2ème étage','3ème étage','4ème étage','5ème étage','6ème+ étage','Dernier étage'].map(f => <option key={f}>{f}</option>)}
           </select>
           <DownIcon />
         </FieldWrapper>
-        <FieldWrapper label="Furnished" icon={<CheckCircle className="w-4 h-4" />}>
-          <select value={d.furnished} onChange={ch('furnished')} className={selectCls()}>
+        <FieldWrapper accent={cfg} label="Furnished" icon={<CheckCircle className="w-4 h-4" />}>
+          <select value={d.furnished} onChange={ch('furnished')} className={selectCls(cfg)}>
             <option value="">Select</option>
             <option value="yes">✓ Furnished</option>
             <option value="no">✗ Unfurnished</option>
@@ -467,22 +468,23 @@ const StepJobDetails: React.FC<{
   d: JobDetails;
   set: (k: keyof JobDetails, v: string) => void;
 }> = ({ d, set }) => {
+  const cfg = CATEGORY_CONFIG['jobs'];
   const ch = (k: keyof JobDetails) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => set(k, e.target.value);
   return (
     <div className="space-y-4">
-      <FieldWrapper label="Company name" icon={<Building2 className="w-4 h-4" />}>
-        <input value={d.company} onChange={ch('company')} placeholder="e.g., Sonatrach, Ooredoo, Freelance" className={inputCls()} />
+      <FieldWrapper accent={cfg} label="Company name" icon={<Building2 className="w-4 h-4" />}>
+        <input value={d.company} onChange={ch('company')} placeholder="e.g., Sonatrach, Ooredoo, Freelance" className={inputCls(cfg)} />
       </FieldWrapper>
       <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label="Contract type" icon={<Briefcase className="w-4 h-4" />}>
-          <select value={d.jobType} onChange={ch('jobType')} className={selectCls()}>
+        <FieldWrapper accent={cfg} label="Contract type" icon={<Briefcase className="w-4 h-4" />}>
+          <select value={d.jobType} onChange={ch('jobType')} className={selectCls(cfg)}>
             <option value="">Select</option>
             {['CDI','CDD','Freelance','Stage','Intérim','Temps partiel'].map(t => <option key={t}>{t}</option>)}
           </select>
           <DownIcon />
         </FieldWrapper>
-        <FieldWrapper label="Work mode" icon={<MapPin className="w-4 h-4" />}>
-          <select value={d.remote} onChange={ch('remote')} className={selectCls()}>
+        <FieldWrapper accent={cfg} label="Work mode" icon={<MapPin className="w-4 h-4" />}>
+          <select value={d.remote} onChange={ch('remote')} className={selectCls(cfg)}>
             <option value="">Select</option>
             {['Présentiel','Remote','Hybride'].map(m => <option key={m}>{m}</option>)}
           </select>
@@ -490,15 +492,15 @@ const StepJobDetails: React.FC<{
         </FieldWrapper>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label="Experience required" icon={<Clock className="w-4 h-4" />}>
-          <select value={d.experience} onChange={ch('experience')} className={selectCls()}>
+        <FieldWrapper accent={cfg} label="Experience required" icon={<Clock className="w-4 h-4" />}>
+          <select value={d.experience} onChange={ch('experience')} className={selectCls(cfg)}>
             <option value="">Select</option>
             {['Débutant (0–1 an)','1–3 ans','3–5 ans','5–10 ans','10+ ans'].map(e => <option key={e}>{e}</option>)}
           </select>
           <DownIcon />
         </FieldWrapper>
-        <FieldWrapper label="Sector / Industry" icon={<Tag className="w-4 h-4" />}>
-          <input value={d.sector} onChange={ch('sector')} placeholder="e.g., IT, BTP, Finance" className={inputCls()} />
+        <FieldWrapper accent={cfg} label="Sector / Industry" icon={<Tag className="w-4 h-4" />}>
+          <input value={d.sector} onChange={ch('sector')} placeholder="e.g., IT, BTP, Finance" className={inputCls(cfg)} />
         </FieldWrapper>
       </div>
     </div>
@@ -509,15 +511,16 @@ const StepServiceDetails: React.FC<{
   d: ServiceDetails;
   set: (k: keyof ServiceDetails, v: string) => void;
 }> = ({ d, set }) => {
+  const cfg = CATEGORY_CONFIG['services'];
   const ch = (k: keyof ServiceDetails) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => set(k, e.target.value);
   return (
     <div className="space-y-4">
-      <FieldWrapper label="Specialty / Trade *" icon={<Wrench className="w-4 h-4" />}>
-        <input value={d.specialty} onChange={ch('specialty')} placeholder="e.g., Plomberie, Web Design, Cours de Maths" className={inputCls()} />
+      <FieldWrapper accent={cfg} label="Specialty / Trade *" icon={<Wrench className="w-4 h-4" />}>
+        <input value={d.specialty} onChange={ch('specialty')} placeholder="e.g., Plomberie, Web Design, Cours de Maths" className={inputCls(cfg)} />
       </FieldWrapper>
       <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label="Rate type" icon={<DollarSign className="w-4 h-4" />}>
-          <select value={d.rateType} onChange={ch('rateType')} className={selectCls()}>
+        <FieldWrapper accent={cfg} label="Rate type" icon={<DollarSign className="w-4 h-4" />}>
+          <select value={d.rateType} onChange={ch('rateType')} className={selectCls(cfg)}>
             <option value="">Select</option>
             <option>Prix fixe</option>
             <option>Par heure</option>
@@ -527,23 +530,23 @@ const StepServiceDetails: React.FC<{
           </select>
           <DownIcon />
         </FieldWrapper>
-        <FieldWrapper label="Years of experience" icon={<Calendar className="w-4 h-4" />}>
-          <select value={d.yearsExp} onChange={ch('yearsExp')} className={selectCls()}>
+        <FieldWrapper accent={cfg} label="Years of experience" icon={<Calendar className="w-4 h-4" />}>
+          <select value={d.yearsExp} onChange={ch('yearsExp')} className={selectCls(cfg)}>
             <option value="">Select</option>
             {['Moins d\'1 an','1–3 ans','3–5 ans','5–10 ans','10+ ans'].map(y => <option key={y}>{y}</option>)}
           </select>
           <DownIcon />
         </FieldWrapper>
       </div>
-      <FieldWrapper label="Availability" icon={<Clock className="w-4 h-4" />}>
-        <select value={d.availability} onChange={ch('availability')} className={selectCls()}>
+      <FieldWrapper accent={cfg} label="Availability" icon={<Clock className="w-4 h-4" />}>
+        <select value={d.availability} onChange={ch('availability')} className={selectCls(cfg)}>
           <option value="">Select</option>
           {['Immédiat','Week-ends uniquement','Semaine uniquement','Soirs uniquement','Flexible'].map(a => <option key={a}>{a}</option>)}
         </select>
         <DownIcon />
       </FieldWrapper>
-      <FieldWrapper label="Contact phone (optional)" icon={<Phone className="w-4 h-4" />}>
-        <input type="tel" placeholder="+213 5xx xx xx xx" className={inputCls()} />
+      <FieldWrapper accent={cfg} label="Contact phone (optional)" icon={<Phone className="w-4 h-4" />}>
+        <input type="tel" placeholder="+213 5xx xx xx xx" className={inputCls(cfg)} />
       </FieldWrapper>
     </div>
   );
