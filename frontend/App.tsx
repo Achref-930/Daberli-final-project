@@ -17,6 +17,7 @@ import ServicesPage from './pages/ServicesPage';
 import TermsPage from './pages/TermsPage';
 import AboutPage from './pages/AboutPage';
 import BoostedPage from './pages/BoostedPage';
+import SubscriptionPlans from './pages/SubscriptionPlans';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdsProvider, useAds } from './contexts/AdsContext';
 import { messagesAPI } from './services/api';
@@ -159,6 +160,10 @@ const AppContent: React.FC = () => {
         <Route
           path="/about"
           element={<AboutPage user={user} onSignIn={openAuthModal} onSignOut={handleSignOut} onPostAdClick={openPostAdModal} ads={ads} selectedWilaya={selectedWilaya} onWilayaChange={setSelectedWilaya} />}
+        />
+        <Route
+          path="/subscription-plans"
+          element={<SubscriptionPlans />}
         />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

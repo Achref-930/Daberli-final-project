@@ -150,6 +150,7 @@ const Navbar: React.FC<NavbarProps> = ({
   // Nav links for user dropdown
   const navLinks = useMemo(() => [
     ...(user?.isAdmin ? [{ to: '/admin',    icon: <ShieldCheck    className="w-4 h-4 mr-3 text-gray-400" />, label: 'Admin Panel' }] : []),
+    { to: '/subscription-plans', icon: <Zap className="w-4 h-4 mr-3 text-violet-500" />, label: 'Subscription Plans' },
     { to: '/profile',  icon: <UserIcon      className="w-4 h-4 mr-3 text-gray-400" />, label: 'My Profile'  },
     { to: '/my-ads',   icon: <List          className="w-4 h-4 mr-3 text-gray-400" />, label: 'My Listings' },
     { to: '/boosted',  icon: <Zap           className="w-4 h-4 mr-3 text-amber-500" />, label: 'Boosted Ads' },
