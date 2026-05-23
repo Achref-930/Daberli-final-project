@@ -139,7 +139,7 @@ const Hero: React.FC = () => {
       </div>
       <div className="relative z-10 text-center px-4 pb-20 md:pb-0">
         {/* Eyebrow */}
-        <p className="inline-block text-xs font-semibold uppercase tracking-widest text-white/50 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full mb-4 font-heading">
+        <p className="hidden sm:inline-flex items-center text-xs font-semibold uppercase tracking-widest text-white/50 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full mb-4 font-heading leading-none whitespace-nowrap">
           Algeria's #1 Marketplace
         </p>
 
