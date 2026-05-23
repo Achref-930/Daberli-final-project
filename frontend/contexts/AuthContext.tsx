@@ -22,6 +22,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isPostAdModalOpen, setIsPostAdModalOpen] = useState(false);
+  const [shouldOpenPostAdAfterAuth, setShouldOpenPostAdAfterAuth] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -41,8 +42,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const openAuthModal = () => setIsAuthModalOpen(true);
-  const closeAuthModal = () => setIsAuthModalOpen(false);
-  const openPostAdModal = () => setIsPostAdModalOpen(true);
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+    setShouldOpenPostAdAfterAuth(false);
+  };
+  const openPostAdModal = () => {
+    if (!user) {
+      setShouldOpenPostAdAfterAuth(true);
+      setIsAuthModalOpen(true);
+    } else {
+      setIsPostAdModalOpen(true);
+    }
+  };
   const closePostAdModal = () => setIsPostAdModalOpen(false);
 
   const handleSignIn = async (email: string, password: string, name?: string, mode?: 'login' | 'register') => {
@@ -55,6 +66,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       setUser(data.user);
       closeAuthModal();
+      if (shouldOpenPostAdAfterAuth) {
+        setIsPostAdModalOpen(true);
+        setShouldOpenPostAdAfterAuth(false);
+      }
     } catch (error: any) {
       throw error;
     }
